@@ -70,7 +70,7 @@ INSERT INTO DependencyTypes (id, name) VALUES
 -- Track which dependencies a package has
 CREATE TABLE PackageDependencies ( id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     arch        VARCHAR(63)  NULL,
-    condition   VARCHAR(255) NULL,
+    requirement VARCHAR(255) NULL,
     description VARCHAR(127) NULL,
 
     package INT UNSIGNED NOT NULL,
@@ -93,7 +93,7 @@ INSERT INTO RelationTypes (id, name) VALUES
 -- Track which conflicts, provides and replaces a package has
 CREATE TABLE PackageRelations ( id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     arch        VARCHAR(63) NULL,
-    condition   VARCHAR(255) NULL,
+    requiremen  VARCHAR(255) NULL,
 
     package INT UNSIGNED NOT NULL,
     relation_type TINYINT UNSIGNED NOT NULL,
