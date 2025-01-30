@@ -11,7 +11,7 @@ pub trait IntoValid: Validate {
 }
 impl<T: garde::Validate> IntoValid for T {}
 
+pub mod adapter;
 pub mod atomic;
 pub mod connect;
 pub mod port;
-pub mod adapter;

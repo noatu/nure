@@ -6,61 +6,28 @@ use garde::{Valid, Validate};
 
 #[allow(async_fn_in_trait)]
 pub trait UserRepository<C>:
-    super::CRUD<
-        C,
-        Create = New,
-        Read = Unique,
-        Update = Field,
-        Delete = Unique,
-        Existing = User,
-        Id = Id,
-    >
+    CRUD<C, New = New, Update = Field, Unique = Unique, Existing = User>
 {
-    async fn update_user(connection: &mut C, user: &mut User, data: Self::Update) -> Result {
-        Self::update(connection, user.id, data.clone()).await?;
-        match data {
-            Field::Name(valid) => user.name = valid.into_inner(),
-            Field::Email(valid) => user.email = valid.into_inner(),
-            Field::Password(valid) => user.password = valid.into_inner(),
-            Field::LastUsed(date_time) => user.last_used = date_time,
-            Field::CreatedAt(date_time) => user.created_at = date_time,
-            Field::UpdatedAt(date_time) => user.updated_at = date_time,
-        }
-        Ok(())
-    }
 }
 
-#[derive(Deref, Into, Clone, Copy)]
-pub struct Id(pub(crate) u64);
-
-// TODO: is this the right layer for requirements (email) validatoin?
-
-#[derive(Validate, Deref, From, Clone)]
+#[derive(Validate, Deref, From, Into)]
 #[garde(transparent)]
-pub struct Name(#[garde(alphanumeric, length(min = 2, max = 31))] pub String);
+pub struct Name(#[garde(length(chars, max = 31))] pub String);
 
-#[derive(Validate, Deref, From, Clone)]
+#[derive(Validate, Deref, From, Into)]
 #[garde(transparent)]
-pub struct Email(#[garde(email, length(max = 255))] pub String);
+pub struct Email(#[garde(length(chars, max = 255))] pub String);
 
-#[derive(Validate, Deref, From, Clone)]
+#[derive(Validate, Deref, From, Into)]
 #[garde(transparent)]
-pub struct Password(#[garde(ascii, length(max = 255))] pub String);
-
-pub struct New {
-    pub name: Valid<Name>,
-    pub email: Valid<Email>,
-    pub password: Valid<Password>,
-    pub last_used: Option<DateTime<Utc>>,
-}
+pub struct Password(#[garde(length(chars, max = 255))] pub String);
 
 pub enum Unique {
-    Id(Id),
+    Id(u64),
     Name(Valid<Name>),
     Email(Valid<Email>),
 }
 
-#[derive(Clone)]
 pub enum Field {
     Name(Valid<Name>),
     Email(Valid<Email>),
@@ -70,27 +37,34 @@ pub enum Field {
     UpdatedAt(DateTime<Utc>),
 }
 
+pub struct New {
+    pub name: Valid<Name>,
+    pub email: Valid<Email>,
+    pub password: Valid<Password>,
+    pub last_used: Option<DateTime<Utc>>,
+}
+
 pub struct User {
-    pub(crate) id: Id,
-    pub(crate) name: Name,
-    pub(crate) email: Email,
-    pub(crate) password: Password,
+    pub(crate) id: u64,
+    pub(crate) name: String,
+    pub(crate) email: String,
+    pub(crate) password: String,
     pub(crate) last_used: Option<DateTime<Utc>>,
     pub(crate) created_at: DateTime<Utc>,
     pub(crate) updated_at: DateTime<Utc>,
 }
 
 impl User {
-    pub const fn id(&self) -> Id {
+    pub const fn id(&self) -> u64 {
         self.id
     }
-    pub const fn name(&self) -> &Name {
+    pub const fn name(&self) -> &String {
         &self.name
     }
-    pub const fn email(&self) -> &Email {
+    pub const fn email(&self) -> &String {
         &self.email
     }
-    pub const fn password(&self) -> &Password {
+    pub const fn password(&self) -> &String {
         &self.password
     }
     pub const fn last_used(&self) -> Option<DateTime<Utc>> {

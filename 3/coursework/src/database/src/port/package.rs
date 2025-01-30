@@ -1,168 +1,94 @@
-use super::{Result, package_base::Base};
+pub use super::{CRUD, Result, base::Base};
 
+pub use chrono::{DateTime, Utc};
 use derive_more::{Deref, From, Into};
 use garde::{Valid, Validate};
-use sqlx::{Executor, MySql};
-
-// pub enum GetBy
 
 #[allow(async_fn_in_trait)]
-pub trait PackageRepository<C> {
-    async fn get_by_id(connection: &C, id: Id) -> Result<Option<Package>>;
-    async fn get_by_name(connection: &C, name: &Valid<Name>) -> Result<Option<Package>>;
-
-    async fn change_name(connection: &mut C, package: &mut Package, name: Valid<Name>) -> Result;
-    async fn change_base(connection: &mut C, package: &mut Package, base: &Base) -> Result;
-    async fn change_version(connection: &mut C, package: &mut Package, version: Valid<Version>) -> Result;
-
-    async fn create(connection: &mut C, data: Valid<PackageData>) -> Result<Package>;
+pub trait PackageRepository<C>:
+    CRUD<C, New = New, Update = Field, Unique = Unique, Existing = Package>
+{
 }
 
-#[derive(Deref, Into, Clone, Copy)]
-pub struct Id(u32);
-
-pub type BaseId = super::package_base::Id;
-
-#[derive(Validate, Deref)]
+#[derive(Validate, Deref, From, Into)]
 #[garde(transparent)]
-pub struct Name(#[garde(alphanumeric, length(min = 2, max = 127))] pub String);
+pub struct Name(#[garde(length(chars, max = 127))] pub String);
 
-#[derive(Validate, Deref)]
+#[derive(Validate, Deref, From, Into)]
 #[garde(transparent)]
-pub struct Version(#[garde(alphanumeric, length(min = 1, max = 127))] pub String);
+pub struct Version(#[garde(length(chars, max = 127))] pub String);
 
-#[derive(Validate, Deref)]
+#[derive(Validate, Deref, From, Into)]
 #[garde(transparent)]
-pub struct Description(#[garde(ascii, length(max = 255))] pub Option<String>);
+pub struct Description(#[garde(length(chars, max = 255))] pub Option<String>);
 
-#[derive(Validate)]
+#[derive(Validate, Deref, From, Into)]
 #[garde(transparent)]
-pub struct URL(#[garde(url, length(max = 510))] pub Option<String>);
+pub struct URL(#[garde(length(chars, max = 510))] pub Option<String>);
 
-#[derive(Validate)]
-pub struct PackageData {
-    #[garde(dive)]
-    pub name: Name,
-    #[garde(dive)]
-    pub description: Description,
+pub enum Unique {
+    Id(u64),
+    Name(Valid<Name>),
 }
 
-#[derive(Deref)]
+pub enum Field {
+    PackageBase(Base),
+    Name(Valid<Name>),
+    Version(Valid<Version>),
+    Description(Valid<Description>),
+    URL(Valid<URL>),
+    FlaggedAt(Option<DateTime<Utc>>),
+    CreatedAt(DateTime<Utc>),
+    UpdatedAt(DateTime<Utc>),
+}
+
+pub struct New {
+    pub package_base: Base,
+    pub name: Valid<Name>,
+    pub version: Valid<Version>,
+    pub description: Valid<Description>,
+    pub url: Valid<URL>,
+    pub flagged_at: Option<DateTime<Utc>>,
+}
+
 pub struct Package {
-    id: Id,
-    #[deref]
-    data: PackageData,
+    pub(crate) id: u64,
+    pub(crate) package_base: u64,
+    pub(crate) name: String,
+    pub(crate) version: String,
+    pub(crate) description: Option<String>,
+    pub(crate) url: Option<String>,
+    pub(crate) flagged_at: Option<DateTime<Utc>>,
+    pub(crate) created_at: DateTime<Utc>,
+    pub(crate) updated_at: DateTime<Utc>,
 }
+
 impl Package {
-    pub const fn id(&self) -> Id {
+    pub const fn id(&self) -> u64 {
         self.id
     }
+    pub const fn package_base(&self) -> u64 {
+        self.package_base
+    }
+    pub const fn name(&self) -> &String {
+        &self.name
+    }
+    pub const fn version(&self) -> &String {
+        &self.version
+    }
+    pub const fn description(&self) -> Option<&String> {
+        self.description.as_ref()
+    }
+    pub const fn url(&self) -> Option<&String> {
+        self.url.as_ref()
+    }
+    pub const fn flagged_at(&self) -> Option<DateTime<Utc>> {
+        self.flagged_at
+    }
+    pub const fn created_at(&self) -> DateTime<Utc> {
+        self.created_at
+    }
+    pub const fn updated_at(&self) -> DateTime<Utc> {
+        self.updated_at
+    }
 }
-
-// pub struct UserAdapter;
-//
-// struct QueryUser {
-//     id: u32,
-//     name: String,
-//     email: String,
-//     password: String,
-// }
-// impl From<QueryUser> for Package {
-//     fn from(value: QueryUser) -> Self {
-//         Self {
-//             id: Id(value.id),
-//             data: PackageData {
-//                 name: Name(value.name),
-//                 description: Description(value.email),
-//             },
-//         }
-//     }
-// }
-//
-// impl<E> PackageRepository<E> for UserAdapter
-// where
-//     for<'a> &'a E: Executor<'a, Database = MySql>,
-// {
-//     async fn get_by_id(connection: &E, id: Id) -> Result<Option<Package>> {
-//         Ok(sqlx::query_as!(
-//             QueryUser,
-//             "SELECT id, name, email, password FROM Users WHERE id = ?",
-//             id.0
-//         )
-//         .fetch_optional(connection)
-//         .await?
-//         .map(Into::into))
-//     }
-//     async fn get_by_name(connection: &E, name: &Valid<Name>) -> Result<Option<Package>> {
-//         Ok(sqlx::query_as!(
-//             QueryUser,
-//             "SELECT id, name, email, password FROM Users WHERE name = ?",
-//             name.0
-//         )
-//         .fetch_optional(connection)
-//         .await?
-//         .map(Into::into))
-//     }
-//     async fn get_by_email(connection: &E, email: &Valid<Description>) -> Result<Option<Package>> {
-//         Ok(sqlx::query_as!(
-//             QueryUser,
-//             "SELECT id, name, email, password FROM Users WHERE email = ?",
-//             email.0
-//         )
-//         .fetch_optional(connection)
-//         .await?
-//         .map(Into::into))
-//     }
-//
-//     async fn change_name(connection: &mut E, user: &mut Package, name: Valid<Name>) -> Result {
-//         sqlx::query!("UPDATE Users SET name = ? WHERE id = ?", name.0, user.id.0)
-//             .execute(&*connection)
-//             .await?;
-//         Ok(())
-//     }
-//     async fn change_email(
-//         connection: &mut E,
-//         user: &mut Package,
-//         email: Valid<Description>,
-//     ) -> Result {
-//         sqlx::query!(
-//             "UPDATE Users SET email = ? WHERE id = ?",
-//             email.0,
-//             user.id.0
-//         )
-//         .execute(&*connection)
-//         .await?;
-//         Ok(())
-//     }
-//     async fn change_password(
-//         connection: &mut E,
-//         user: &mut Package,
-//         password: Valid<Password>,
-//     ) -> Result {
-//         sqlx::query!(
-//             "UPDATE Users SET password = ? WHERE id = ?",
-//             password.0,
-//             user.id.0
-//         )
-//         .execute(&*connection)
-//         .await?;
-//         Ok(())
-//     }
-//
-//     async fn create(connection: &mut E, data: Valid<PackageData>) -> Result<Package> {
-//         let id = sqlx::query!(
-//             "INSERT INTO Users (name, email, password) VALUES (?, ?, ?)",
-//             data.name.0,
-//             data.description.0,
-//             data.password.0
-//         )
-//         .execute(&*connection)
-//         .await?
-//         .last_insert_id() as u32;
-//
-//         Ok(Package {
-//             id: Id(id),
-//             data: data.into_inner(),
-//         })
-//     }
-// }

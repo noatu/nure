@@ -6,45 +6,21 @@ use garde::{Valid, Validate};
 
 #[allow(async_fn_in_trait)]
 pub trait BaseRepository<C>:
-    super::CRUD<
-        C,
-        Create = New,
-        Read = Id,
-        Update = Field,
-        Delete = Id,
-        Existing = Base,
-        Id = Id,
-    >
+    CRUD<C, New = New, Unique = u64, Update = Field, Existing = Base>
 {
-    async fn update_base(connection: &mut C, base: &mut Base, data: Self::Update) -> Result {
-        Self::update(connection, base.id, data.clone()).await?;
-        match data {
-            Field::Name(valid) => base.name = valid.into_inner(),
-            Field::Description(valid) => base.description = valid.into_inner(),
-            Field::CreatedAt(date_time) => base.created_at = date_time,
-            Field::UpdatedAt(date_time) => base.updated_at = date_time,
-        }
-        Ok(())
-    }
 }
 
-#[derive(Deref, Into, Clone, Copy)]
-pub struct Id(pub(crate) u64);
+// #[derive(Deref, Into, Clone, Copy)]
+// pub struct Id(pub(crate) u64);
 
-#[derive(Validate, Deref, From, Clone)]
+#[derive(Validate, Deref, From, Into)]
 #[garde(transparent)]
-pub struct Name(#[garde(alphanumeric, length(min = 2, max = 127))] pub String);
+pub struct Name(#[garde(length(chars, max = 127))] pub String);
 
-#[derive(Validate, Deref, From, Clone)]
+#[derive(Validate, Deref, From, Into)]
 #[garde(transparent)]
-pub struct Description(#[garde(length(max = 510))] pub Option<String>);
+pub struct Description(#[garde(length(chars, max = 510))] pub Option<String>);
 
-pub struct New {
-    pub name: Name,
-    pub description: Description,
-}
-
-#[derive(Clone)]
 pub enum Field {
     Name(Valid<Name>),
     Description(Valid<Description>),
@@ -52,28 +28,33 @@ pub enum Field {
     UpdatedAt(DateTime<Utc>),
 }
 
+pub struct New {
+    pub name: Valid<Name>,
+    pub description: Valid<Description>,
+}
+
 pub struct Base {
-    pub(crate) id: Id,
-    pub(crate) name: Name,
-    pub(crate) description: Description,
+    pub(crate) id: u64,
+    pub(crate) name: String,
+    pub(crate) description: Option<String>,
     pub(crate) created_at: DateTime<Utc>,
     pub(crate) updated_at: DateTime<Utc>,
 }
 
 impl Base {
-    pub fn id(&self) -> Id {
+    pub const fn id(&self) -> u64 {
         self.id
     }
-    pub fn name(&self) -> &Name {
+    pub const fn name(&self) -> &String {
         &self.name
     }
-    pub fn description(&self) -> &Description {
-        &self.description
+    pub const fn description(&self) -> Option<&String> {
+        self.description.as_ref()
     }
-    pub fn created_at(&self) -> DateTime<Utc> {
+    pub const fn created_at(&self) -> DateTime<Utc> {
         self.created_at
     }
-    pub fn updated_at(&self) -> DateTime<Utc> {
+    pub const fn updated_at(&self) -> DateTime<Utc> {
         self.updated_at
     }
 }
