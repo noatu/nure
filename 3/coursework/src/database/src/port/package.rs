@@ -1,8 +1,7 @@
 pub use super::{CRUD, Result, base::Base};
 
 pub use chrono::{DateTime, Utc};
-use derive_more::{Deref, From, Into};
-use garde::{Valid, Validate};
+use derive_more::{Deref, Into};
 
 #[allow(async_fn_in_trait)]
 pub trait PackageRepository<C>:
@@ -10,33 +9,75 @@ pub trait PackageRepository<C>:
 {
 }
 
-#[derive(Validate, Deref, From, Into)]
-#[garde(transparent)]
-pub struct Name(#[garde(length(chars, max = 127))] pub String);
+#[derive(Clone, Deref, Into)]
+pub struct Name(String);
+impl TryFrom<String> for Name {
+    type Error = &'static str;
 
-#[derive(Validate, Deref, From, Into)]
-#[garde(transparent)]
-pub struct Version(#[garde(length(chars, max = 127))] pub String);
+    fn try_from(value: String) -> std::result::Result<Self, Self::Error> {
+        if value.chars().count() > 127 {
+            Err(super::TOO_LONG)
+        } else {
+            Ok(Self(value))
+        }
+    }
+}
 
-#[derive(Validate, Deref, From, Into)]
-#[garde(transparent)]
-pub struct Description(#[garde(length(chars, max = 255))] pub Option<String>);
+#[derive(Clone, Deref, Into)]
+pub struct Version(String);
+impl TryFrom<String> for Version {
+    type Error = &'static str;
 
-#[derive(Validate, Deref, From, Into)]
-#[garde(transparent)]
-pub struct URL(#[garde(length(chars, max = 510))] pub Option<String>);
+    fn try_from(value: String) -> std::result::Result<Self, Self::Error> {
+        if value.chars().count() > 127 {
+            Err(super::TOO_LONG)
+        } else {
+            Ok(Self(value))
+        }
+    }
+}
+
+#[derive(Clone, Deref, Into)]
+pub struct Description(Option<String>);
+impl TryFrom<Option<String>> for Description {
+    type Error = &'static str;
+
+    fn try_from(value: Option<String>) -> std::result::Result<Self, Self::Error> {
+        if let Some(x) = &value {
+            if x.chars().count() > 255 {
+                return Err(super::TOO_LONG);
+            }
+        }
+        Ok(Self(value))
+    }
+}
+
+#[derive(Clone, Deref, Into)]
+pub struct URL(Option<String>);
+impl TryFrom<Option<String>> for URL {
+    type Error = &'static str;
+
+    fn try_from(value: Option<String>) -> std::result::Result<Self, Self::Error> {
+        if let Some(x) = &value {
+            if x.chars().count() > 510 {
+                return Err(super::TOO_LONG);
+            }
+        }
+        Ok(Self(value))
+    }
+}
 
 pub enum Unique {
     Id(u64),
-    Name(Valid<Name>),
+    Name(Name),
 }
 
 pub enum Field {
     PackageBase(Base),
-    Name(Valid<Name>),
-    Version(Valid<Version>),
-    Description(Valid<Description>),
-    URL(Valid<URL>),
+    Name(Name),
+    Version(Version),
+    Description(Description),
+    URL(URL),
     FlaggedAt(Option<DateTime<Utc>>),
     CreatedAt(DateTime<Utc>),
     UpdatedAt(DateTime<Utc>),
@@ -44,10 +85,10 @@ pub enum Field {
 
 pub struct New {
     pub package_base: Base,
-    pub name: Valid<Name>,
-    pub version: Valid<Version>,
-    pub description: Valid<Description>,
-    pub url: Valid<URL>,
+    pub name: Name,
+    pub version: Version,
+    pub description: Description,
+    pub url: URL,
     pub flagged_at: Option<DateTime<Utc>>,
 }
 

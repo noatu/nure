@@ -1,8 +1,7 @@
 pub use super::{CRUD, Result};
 
 pub use chrono::{DateTime, Utc};
-use derive_more::{Deref, From, Into};
-use garde::{Valid, Validate};
+use derive_more::{Deref, Into};
 
 #[allow(async_fn_in_trait)]
 pub trait UserRepository<C>:
@@ -10,37 +9,67 @@ pub trait UserRepository<C>:
 {
 }
 
-#[derive(Validate, Deref, From, Into)]
-#[garde(transparent)]
-pub struct Name(#[garde(length(chars, max = 31))] pub String);
+#[derive(Clone, Deref, Into)]
+pub struct Name(String);
+impl TryFrom<String> for Name {
+    type Error = &'static str;
 
-#[derive(Validate, Deref, From, Into)]
-#[garde(transparent)]
-pub struct Email(#[garde(length(chars, max = 255))] pub String);
+    fn try_from(value: String) -> std::result::Result<Self, Self::Error> {
+        if value.chars().count() > 31 {
+            Err(super::TOO_LONG)
+        } else {
+            Ok(Self(value))
+        }
+    }
+}
 
-#[derive(Validate, Deref, From, Into)]
-#[garde(transparent)]
-pub struct Password(#[garde(length(chars, max = 255))] pub String);
+#[derive(Clone, Deref, Into)]
+pub struct Email(String);
+impl TryFrom<String> for Email {
+    type Error = &'static str;
+
+    fn try_from(value: String) -> std::result::Result<Self, Self::Error> {
+        if value.chars().count() > 255 {
+            Err(super::TOO_LONG)
+        } else {
+            Ok(Self(value))
+        }
+    }
+}
+
+#[derive(Clone, Deref, Into)]
+pub struct Password(String);
+impl TryFrom<String> for Password {
+    type Error = &'static str;
+
+    fn try_from(value: String) -> std::result::Result<Self, Self::Error> {
+        if value.chars().count() > 255 {
+            Err(super::TOO_LONG)
+        } else {
+            Ok(Self(value))
+        }
+    }
+}
 
 pub enum Unique {
     Id(u64),
-    Name(Valid<Name>),
-    Email(Valid<Email>),
+    Name(Name),
+    Email(Email),
 }
 
 pub enum Field {
-    Name(Valid<Name>),
-    Email(Valid<Email>),
-    Password(Valid<Password>),
+    Name(Name),
+    Email(Email),
+    Password(Password),
     LastUsed(Option<DateTime<Utc>>),
     CreatedAt(DateTime<Utc>),
     UpdatedAt(DateTime<Utc>),
 }
 
 pub struct New {
-    pub name: Valid<Name>,
-    pub email: Valid<Email>,
-    pub password: Valid<Password>,
+    pub name: Name,
+    pub email: Email,
+    pub password: Password,
     pub last_used: Option<DateTime<Utc>>,
 }
 

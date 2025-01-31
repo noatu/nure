@@ -21,10 +21,10 @@ where
             (package_base, name, version, description, url, flagged_at, created_at, updated_at) \
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
             data.package_base.id,
-            data.name.0,
-            data.version.0,
-            data.description.0,
-            data.url.0,
+            data.name.as_str(),
+            data.version.as_str(),
+            data.description.as_ref(),
+            data.url.as_ref(),
             data.flagged_at,
             created_at,
             created_at,
@@ -36,10 +36,10 @@ where
         Ok(Self::Existing {
             id,
             package_base: data.package_base.id,
-            name: data.name.into_inner().0,
-            version: data.version.into_inner().0,
-            description: data.description.into_inner().0,
-            url: data.url.into_inner().0,
+            name: data.name.into(),
+            version: data.version.into(),
+            description: data.description.into(),
+            url: data.url.into(),
             flagged_at: data.flagged_at,
             created_at,
             updated_at: created_at,
@@ -54,9 +54,13 @@ where
                     .await
             }
             Unique::Name(name) => {
-                sqlx::query_as!(Package, "SELECT * FROM Packages WHERE name = ?", name.0)
-                    .fetch_optional(connection)
-                    .await
+                sqlx::query_as!(
+                    Package,
+                    "SELECT * FROM Packages WHERE name = ?",
+                    name.as_str()
+                )
+                .fetch_optional(connection)
+                .await
             }
         }?)
     }
@@ -70,7 +74,7 @@ where
             Field::Name(name) => {
                 sqlx::query!(
                     "UPDATE Packages SET name = ? WHERE id = ?",
-                    name.0,
+                    name.as_str(),
                     existing.id
                 )
             }
@@ -84,21 +88,21 @@ where
             Field::Version(version) => {
                 sqlx::query!(
                     "UPDATE Packages SET version = ? WHERE id = ?",
-                    version.0,
+                    version.as_str(),
                     existing.id
                 )
             }
             Field::Description(description) => {
                 sqlx::query!(
                     "UPDATE Packages SET description = ? WHERE id = ?",
-                    description.0,
+                    description.as_ref(),
                     existing.id
                 )
             }
             Field::URL(url) => {
                 sqlx::query!(
                     "UPDATE Packages SET url = ? WHERE id = ?",
-                    url.0,
+                    url.as_ref(),
                     existing.id
                 )
             }
@@ -122,11 +126,11 @@ where
         .await?;
 
         match data {
-            Field::Name(valid) => existing.name = valid.into_inner().0,
-            Field::PackageBase(base) => existing.package_base = base.id,
-            Field::Version(valid) => existing.version = valid.into_inner().0,
-            Field::Description(valid) => existing.description = valid.into_inner().0,
-            Field::URL(valid) => existing.url = valid.into_inner().0,
+            Field::Name(s) => existing.name = s.into(),
+            Field::PackageBase(s) => existing.package_base = s.id,
+            Field::Version(s) => existing.version = s.into(),
+            Field::Description(o) => existing.description = o.into(),
+            Field::URL(o) => existing.url = o.into(),
             Field::FlaggedAt(date_time) => existing.flagged_at = date_time,
             Field::CreatedAt(date_time) => existing.created_at = date_time,
             Field::UpdatedAt(date_time) => existing.updated_at = date_time,
@@ -139,7 +143,7 @@ where
         match data {
             Unique::Id(id) => sqlx::query!("DELETE FROM Packages WHERE id = ?", id),
             Unique::Name(name) => {
-                sqlx::query!("DELETE FROM Packages WHERE name = ?", name.0)
+                sqlx::query!("DELETE FROM Packages WHERE name = ?", name.as_str())
             }
         }
         .execute(&*connection)

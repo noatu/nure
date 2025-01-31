@@ -1,8 +1,7 @@
 pub use super::{CRUD, Result};
 
 pub use chrono::{DateTime, Utc};
-use derive_more::{Deref, From, Into};
-use garde::{Valid, Validate};
+use derive_more::{Deref, Into};
 
 #[allow(async_fn_in_trait)]
 pub trait BaseRepository<C>:
@@ -13,24 +12,45 @@ pub trait BaseRepository<C>:
 // #[derive(Deref, Into, Clone, Copy)]
 // pub struct Id(pub(crate) u64);
 
-#[derive(Validate, Deref, From, Into)]
-#[garde(transparent)]
-pub struct Name(#[garde(length(chars, max = 127))] pub String);
+#[derive(Clone, Deref, Into)]
+pub struct Name(String);
+impl TryFrom<String> for Name {
+    type Error = &'static str;
 
-#[derive(Validate, Deref, From, Into)]
-#[garde(transparent)]
-pub struct Description(#[garde(length(chars, max = 510))] pub Option<String>);
+    fn try_from(value: String) -> std::result::Result<Self, Self::Error> {
+        if value.chars().count() > 127 {
+            Err(super::TOO_LONG)
+        } else {
+            Ok(Self(value))
+        }
+    }
+}
+
+#[derive(Clone, Deref, Into)]
+pub struct Description(Option<String>);
+impl TryFrom<Option<String>> for Description {
+    type Error = &'static str;
+
+    fn try_from(value: Option<String>) -> std::result::Result<Self, Self::Error> {
+        if let Some(x) = &value {
+            if x.chars().count() > 510 {
+                return Err(super::TOO_LONG);
+            }
+        }
+        Ok(Self(value))
+    }
+}
 
 pub enum Field {
-    Name(Valid<Name>),
-    Description(Valid<Description>),
+    Name(Name),
+    Description(Description),
     CreatedAt(DateTime<Utc>),
     UpdatedAt(DateTime<Utc>),
 }
 
 pub struct New {
-    pub name: Valid<Name>,
-    pub description: Valid<Description>,
+    pub name: Name,
+    pub description: Description,
 }
 
 pub struct Base {

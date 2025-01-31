@@ -1,0 +1,12 @@
+{
+  "db_name": "MySQL",
+  "query": "DELETE FROM PackageBases WHERE id = ?",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": []
+  },
+  "hash": "389e38e7e0a0b7d9ba667ac148a0a468da889a3455c47325938b819ab41ef4c8"
+}

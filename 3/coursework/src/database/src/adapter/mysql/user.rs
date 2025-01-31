@@ -18,9 +18,9 @@ where
         let created_at = Utc::now();
         let id = sqlx::query!(
             "INSERT INTO Users (name, email, password, last_used, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)",
-            data.name.0,
-            data.email.0,
-            data.password.0,
+            data.name.as_str(),
+            data.email.as_str(),
+            data.password.as_str(),
             data.last_used,
             created_at,
             created_at,
@@ -31,9 +31,9 @@ where
 
         Ok(Self::Existing {
             id,
-            name: data.name.into_inner().0,
-            email: data.email.into_inner().0,
-            password: data.password.into_inner().0,
+            name: data.name.into(),
+            email: data.email.into(),
+            password: data.password.into(),
             last_used: data.last_used,
             created_at,
             updated_at: created_at,
@@ -48,12 +48,12 @@ where
                     .await
             }
             Unique::Name(name) => {
-                sqlx::query_as!(User, "SELECT * FROM Users WHERE name = ?", name.0)
+                sqlx::query_as!(User, "SELECT * FROM Users WHERE name = ?", name.as_str())
                     .fetch_optional(connection)
                     .await
             }
             Unique::Email(email) => {
-                sqlx::query_as!(User, "SELECT * FROM Users WHERE email = ?", email.0)
+                sqlx::query_as!(User, "SELECT * FROM Users WHERE email = ?", email.as_str())
                     .fetch_optional(connection)
                     .await
             }
@@ -69,21 +69,21 @@ where
             Field::Name(name) => {
                 sqlx::query!(
                     "UPDATE Users SET name = ? WHERE id = ?",
-                    name.0,
+                    name.as_str(),
                     existing.id
                 )
             }
             Field::Email(email) => {
                 sqlx::query!(
                     "UPDATE Users SET email = ? WHERE id = ?",
-                    email.0,
+                    email.as_str(),
                     existing.id
                 )
             }
             Field::Password(password) => {
                 sqlx::query!(
                     "UPDATE Users SET password = ? WHERE id = ?",
-                    password.0,
+                    password.as_str(),
                     existing.id
                 )
             }
@@ -109,9 +109,9 @@ where
         .await?;
 
         match data {
-            Field::Name(valid) => existing.name = valid.into_inner().0,
-            Field::Email(valid) => existing.email = valid.into_inner().0,
-            Field::Password(valid) => existing.password = valid.into_inner().0,
+            Field::Name(valid) => existing.name = valid.into(),
+            Field::Email(valid) => existing.email = valid.into(),
+            Field::Password(valid) => existing.password = valid.into(),
             Field::LastUsed(date_time) => existing.last_used = date_time,
             Field::CreatedAt(date_time) => existing.created_at = date_time,
             Field::UpdatedAt(date_time) => existing.updated_at = date_time,
@@ -124,10 +124,10 @@ where
         match data {
             Unique::Id(id) => sqlx::query!("DELETE FROM Users WHERE id = ?", id),
             Unique::Name(name) => {
-                sqlx::query!("DELETE FROM Users WHERE name = ?", name.0)
+                sqlx::query!("DELETE FROM Users WHERE name = ?", name.as_str())
             }
             Unique::Email(email) => {
-                sqlx::query!("DELETE FROM Users WHERE email = ?", email.0)
+                sqlx::query!("DELETE FROM Users WHERE email = ?", email.as_str())
             }
         }
         .execute(&*connection)

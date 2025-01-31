@@ -18,8 +18,8 @@ where
         let created_at = Utc::now();
         let id = sqlx::query!(
             "INSERT INTO PackageBases (name, description, created_at, updated_at) VALUES (?, ?, ?, ?)",
-            data.name.0,
-            data.description.0,
+            data.name.as_str(),
+            data.description.as_ref(),
             created_at, created_at,
         )
         .execute(&*connection)
@@ -28,8 +28,8 @@ where
 
         Ok(Self::Existing {
             id,
-            name: data.name.into_inner().0,
-            description: data.description.into_inner().0,
+            name: data.name.into(),
+            description: data.description.into(),
             created_at,
             updated_at: created_at,
         })
@@ -52,14 +52,14 @@ where
             Field::Name(name) => {
                 sqlx::query!(
                     "UPDATE PackageBases SET name = ? WHERE id = ?",
-                    name.0,
+                    name.as_str(),
                     existing.id
                 )
             }
             Field::Description(description) => {
                 sqlx::query!(
                     "UPDATE PackageBases SET description = ? WHERE id = ?",
-                    description.0,
+                    description.as_ref(),
                     existing.id
                 )
             }
@@ -78,8 +78,8 @@ where
         .await?;
 
         match data {
-            Field::Name(valid) => existing.name = valid.into_inner().0,
-            Field::Description(valid) => existing.description = valid.into_inner().0,
+            Field::Name(s) => existing.name = s.into(),
+            Field::Description(o) => existing.description = o.into(),
             Field::CreatedAt(date_time) => existing.created_at = date_time,
             Field::UpdatedAt(date_time) => existing.updated_at = date_time,
         }
