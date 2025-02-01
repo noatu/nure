@@ -1,3 +1,4 @@
+use super::MaxLength;
 pub use super::{CRUD, Result};
 
 pub use chrono::{DateTime, Utc};
@@ -14,29 +15,30 @@ pub trait BaseRepository<C>:
 
 #[derive(Clone, Deref, Into)]
 pub struct Name(String);
+impl MaxLength for Name {
+    type Inner = String;
+    const MAX_LENGTH: usize = 127;
+}
 impl TryFrom<String> for Name {
     type Error = &'static str;
 
-    fn try_from(value: String) -> std::result::Result<Self, Self::Error> {
-        if value.chars().count() > 127 {
-            Err(super::TOO_LONG)
-        } else {
-            Ok(Self(value))
-        }
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        Self::validate(&value)?;
+        Ok(Self(value))
     }
 }
 
 #[derive(Clone, Deref, Into)]
 pub struct Description(Option<String>);
+impl MaxLength for Description {
+    type Inner = Option<String>;
+    const MAX_LENGTH: usize = 510;
+}
 impl TryFrom<Option<String>> for Description {
     type Error = &'static str;
 
-    fn try_from(value: Option<String>) -> std::result::Result<Self, Self::Error> {
-        if let Some(x) = &value {
-            if x.chars().count() > 510 {
-                return Err(super::TOO_LONG);
-            }
-        }
+    fn try_from(value: Option<String>) -> Result<Self, Self::Error> {
+        Self::validate(&value)?;
         Ok(Self(value))
     }
 }

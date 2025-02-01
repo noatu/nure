@@ -1,3 +1,4 @@
+use super::MaxLength;
 pub use super::{CRUD, Result};
 
 pub use chrono::{DateTime, Utc};
@@ -11,43 +12,46 @@ pub trait UserRepository<C>:
 
 #[derive(Clone, Deref, Into)]
 pub struct Name(String);
+impl MaxLength for Name {
+    type Inner = String;
+    const MAX_LENGTH: usize = 31;
+}
 impl TryFrom<String> for Name {
     type Error = &'static str;
 
-    fn try_from(value: String) -> std::result::Result<Self, Self::Error> {
-        if value.chars().count() > 31 {
-            Err(super::TOO_LONG)
-        } else {
-            Ok(Self(value))
-        }
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        Self::validate(&value)?;
+        Ok(Self(value))
     }
 }
 
 #[derive(Clone, Deref, Into)]
 pub struct Email(String);
+impl MaxLength for Email {
+    type Inner = String;
+    const MAX_LENGTH: usize = 255;
+}
 impl TryFrom<String> for Email {
     type Error = &'static str;
 
-    fn try_from(value: String) -> std::result::Result<Self, Self::Error> {
-        if value.chars().count() > 255 {
-            Err(super::TOO_LONG)
-        } else {
-            Ok(Self(value))
-        }
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        Self::validate(&value)?;
+        Ok(Self(value))
     }
 }
 
 #[derive(Clone, Deref, Into)]
 pub struct Password(String);
+impl MaxLength for Password {
+    type Inner = String;
+    const MAX_LENGTH: usize = 255;
+}
 impl TryFrom<String> for Password {
     type Error = &'static str;
 
-    fn try_from(value: String) -> std::result::Result<Self, Self::Error> {
-        if value.chars().count() > 255 {
-            Err(super::TOO_LONG)
-        } else {
-            Ok(Self(value))
-        }
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        Self::validate(&value)?;
+        Ok(Self(value))
     }
 }
 
