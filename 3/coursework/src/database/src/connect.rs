@@ -1,11 +1,10 @@
 type Result<T = ()> = std::result::Result<T, Box<dyn std::error::Error>>;
 
-#[allow(async_fn_in_trait)]
 pub trait Connect {
     type Connection;
 
-    async fn open_connection(&self) -> Result<Self::Connection>;
-    async fn close_connection(connection: Self::Connection) -> Result;
+    fn open_connection(&self) -> impl Future<Output = Result<Self::Connection>> + Send;
+    fn close_connection(connection: Self::Connection) -> impl Future<Output = Result> + Send;
 }
 
 use sqlx::Connection;

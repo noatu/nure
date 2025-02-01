@@ -1,12 +1,11 @@
 type Result<T = ()> = std::result::Result<T, Box<dyn std::error::Error>>;
 
-#[allow(async_fn_in_trait)]
 pub trait Atomic {
     type Transaction<'a>;
 
-    async fn start_transaction(&mut self) -> Result<Self::Transaction<'_>>;
-    async fn abort_transaction(transaction: Self::Transaction<'_>) -> Result;
-    async fn commit_transaction(transaction: Self::Transaction<'_>) -> Result;
+    fn start_transaction(&mut self) -> impl Future<Output = Result<Self::Transaction<'_>>> + Send;
+    fn abort_transaction(transaction: Self::Transaction<'_>) -> impl Future<Output = Result> + Send;
+    fn commit_transaction(transaction: Self::Transaction<'_>) -> impl Future<Output = Result> + Send;
 }
 
 use sqlx::Connection;

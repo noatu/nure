@@ -4,9 +4,15 @@ use sqlx::{Executor, MySql};
 
 pub struct UserAdapter;
 
-impl<E> UserRepository<E> for UserAdapter where for<'a> &'a E: Executor<'a, Database = MySql> {}
+impl<E> UserRepository<E> for UserAdapter
+where
+    E: Send,
+    for<'a> &'a E: Executor<'a, Database = MySql>,
+{
+}
 impl<E> crate::port::CRUD<E> for UserAdapter
 where
+    E: Send,
     for<'a> &'a E: Executor<'a, Database = MySql>,
 {
     type New = New;

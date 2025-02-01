@@ -1,20 +1,25 @@
 pub type Result<T = (), E = Box<dyn std::error::Error>> = std::result::Result<T, E>;
 
-#[allow(async_fn_in_trait)]
 pub trait CRUD<C> {
     type New;
     type Unique;
     type Update;
     type Existing;
 
-    async fn create(connection: &mut C, data: Self::New) -> Result<Self::Existing>;
-    async fn read(connection: &C, data: Self::Unique) -> Result<Option<Self::Existing>>;
-    async fn update(
+    fn create(
+        connection: &mut C,
+        data: Self::New,
+    ) -> impl Future<Output = Result<Self::Existing>> + Send;
+    fn read(
+        connection: &C,
+        data: Self::Unique,
+    ) -> impl Future<Output = Result<Option<Self::Existing>>> + Send;
+    fn update(
         connection: &mut C,
         existing: &mut Self::Existing,
         data: Self::Update,
-    ) -> Result;
-    async fn delete(connection: &mut C, data: Self::Unique) -> Result;
+    ) -> impl Future<Output = Result> + Send;
+    fn delete(connection: &mut C, data: Self::Unique) -> impl Future<Output = Result> + Send;
 }
 
 trait CharLength {

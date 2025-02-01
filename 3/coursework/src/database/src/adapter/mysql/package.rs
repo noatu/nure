@@ -4,9 +4,15 @@ use sqlx::{Executor, MySql};
 
 pub struct PackageAdapter;
 
-impl<E> PackageRepository<E> for PackageAdapter where for<'a> &'a E: Executor<'a, Database = MySql> {}
+impl<E> PackageRepository<E> for PackageAdapter
+where
+    E: Send,
+    for<'a> &'a E: Executor<'a, Database = MySql>,
+{
+}
 impl<E> crate::port::CRUD<E> for PackageAdapter
 where
+    E: Send,
     for<'a> &'a E: Executor<'a, Database = MySql>,
 {
     type New = New;

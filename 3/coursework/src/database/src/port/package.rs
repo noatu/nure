@@ -4,7 +4,6 @@ pub use super::{CRUD, Result, base::Base};
 pub use chrono::{DateTime, Utc};
 use derive_more::{Deref, Into};
 
-#[allow(async_fn_in_trait)]
 pub trait PackageRepository<C>:
     CRUD<C, New = New, Update = Field, Unique = Unique, Existing = Package>
 {
