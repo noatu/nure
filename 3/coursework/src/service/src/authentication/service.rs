@@ -1,6 +1,6 @@
 use super::{
     Authenticated, AuthenticationContract, AuthenticationRepository, Email, Error, Get, Login,
-    LoginData, Name, RegisterData, Result,
+    LoginData, Name, RegisterData, Result, Validation,
 };
 
 use argon2::{
@@ -48,7 +48,7 @@ where
             .is_some()
         {
             return Err(Error::NameExists);
-        };
+        }
         Ok(())
     }
     async fn email_available(&self, email: Email) -> Result {
@@ -60,7 +60,7 @@ where
             .is_some()
         {
             return Err(Error::EmailExists);
-        };
+        }
         Ok(())
     }
 
@@ -89,11 +89,11 @@ where
         self.email_available(data.email.clone()).await?;
 
         // Get PHC string ($argon2id$v=19$...)
-        let password = Argon2::default()
+        let phc = Argon2::default()
             .hash_password(data.password.as_bytes(), &SaltString::generate(&mut OsRng))?
-            .to_string()
-            .try_into()
-            .map_err(|(_, e)| Error::InvalidPassword(Box::from(e)))?;
+            .to_string();
+        let password = data::user::Password::new(phc)
+            .map_err(|(_, e)| Error::InvalidPassword(e))?;
 
         let user = self
             .repository

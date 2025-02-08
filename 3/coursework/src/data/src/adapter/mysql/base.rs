@@ -12,7 +12,7 @@ where
     for<'a> &'a E: Executor<'a, Database = MySql>,
 {
 }
-impl<E> crate::port::CRUD<E> for BaseAdapter
+impl<E> crate::port::Crud<E> for BaseAdapter
 where
     E: Send,
     for<'a> &'a E: Executor<'a, Database = MySql>,

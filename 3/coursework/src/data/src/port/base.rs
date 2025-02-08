@@ -1,10 +1,10 @@
-use super::MaxLength;
+use super::Validatable;
 
 use chrono::{DateTime, Utc};
 use derive_more::{Deref, Into};
 
 pub trait BaseRepository<C>:
-    super::CRUD<C, New = New, Unique = u64, Update = Field, Existing = Base>
+    super::Crud<C, New = New, Unique = u64, Update = Field, Existing = Base>
 {
 }
 
@@ -13,33 +13,21 @@ pub trait BaseRepository<C>:
 
 #[derive(Clone, Deref, Into)]
 pub struct Name(String);
-impl MaxLength for Name {
+impl Validatable for Name {
     type Inner = String;
     const MAX_LENGTH: usize = 127;
-}
-impl TryFrom<String> for Name {
-    type Error = &'static str;
-
-    fn try_from(value: String) -> Result<Self, Self::Error> {
-        Self::validate(&value)?;
-        Ok(Self(value))
+    fn encapsulate(value: Self::Inner) -> Self {
+        Self(value)
     }
 }
 
 #[derive(Clone, Deref, Into)]
 pub struct Description(Option<String>);
-impl MaxLength for Description {
+impl Validatable for Description {
     type Inner = Option<String>;
     const MAX_LENGTH: usize = 510;
-}
-impl TryFrom<Option<String>> for Description {
-    type Error = (Option<String>, &'static str);
-
-    fn try_from(value: Option<String>) -> Result<Self, Self::Error> {
-        match Self::validate(&value) {
-            Ok(()) => Ok(Self(value)),
-            Err(e) => Err((value, e)),
-        }
+    fn encapsulate(value: Self::Inner) -> Self {
+        Self(value)
     }
 }
 

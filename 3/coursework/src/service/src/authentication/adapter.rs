@@ -11,6 +11,7 @@ where
     UR: UserRepository<C> + Sync,
 {
     driver: D,
+    // connection: Option<C>,
     _user_repository: PhantomData<UR>,
 }
 
@@ -23,14 +24,24 @@ where
     pub const fn new(driver: D) -> Self {
         Self {
             driver,
+            // connection: None,
             _user_repository: PhantomData,
         }
     }
+
+    // async fn connection(&mut self) -> Result<&C> {
+    //     if let Some(ref c) = self.connection {
+    //         Ok(c)
+    //     } else {
+    //         self.connection = Some(self.driver.open_connection().await?);
+    //         self.connection().await
+    //     }
+    // }
 }
 
 impl<D, C, UR> AuthenticationRepository for AuthenticationAdapter<D, C, UR>
 where
-    C: Send,
+    C: Send, //+ Sync,
     D: Connect<Connection = C> + Sync,
     UR: UserRepository<C> + Sync,
 {

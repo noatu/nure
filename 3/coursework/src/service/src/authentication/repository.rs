@@ -3,7 +3,7 @@ use data::user::{Email, Name, New, Unique, User};
 
 use derive_more::{Deref, DerefMut};
 
-#[derive(Deref, DerefMut, Debug)]
+#[derive(Debug, Clone, Deref, DerefMut)]
 pub struct Authenticated(pub(super) User);
 
 pub trait AuthenticationRepository {

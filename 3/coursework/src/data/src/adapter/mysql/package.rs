@@ -12,7 +12,7 @@ where
     for<'a> &'a E: Executor<'a, Database = MySql>,
 {
 }
-impl<E> crate::port::CRUD<E> for PackageAdapter
+impl<E> crate::port::Crud<E> for PackageAdapter
 where
     E: Send,
     for<'a> &'a E: Executor<'a, Database = MySql>,
@@ -26,7 +26,7 @@ where
         let created_at = Utc::now();
         let id = sqlx::query!(
             "INSERT INTO Packages \
-            (package_base, name, version, description, url, flagged_at, created_at, updated_at) \
+            (base, name, version, description, url, flagged_at, created_at, updated_at) \
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
             data.package_base.id,
             data.name.as_str(),
@@ -43,7 +43,7 @@ where
 
         Ok(Self::Existing {
             id,
-            package_base: data.package_base.id,
+            base: data.package_base.id,
             name: data.name.into(),
             version: data.version.into(),
             description: data.description.into(),
@@ -88,7 +88,7 @@ where
             }
             Field::PackageBase(package_base) => {
                 sqlx::query!(
-                    "UPDATE Packages SET package_base = ? WHERE id = ?",
+                    "UPDATE Packages SET base = ? WHERE id = ?",
                     package_base.id,
                     existing.id
                 )
@@ -107,7 +107,7 @@ where
                     existing.id
                 )
             }
-            Field::URL(url) => {
+            Field::Url(url) => {
                 sqlx::query!(
                     "UPDATE Packages SET url = ? WHERE id = ?",
                     url.as_ref(),
@@ -135,10 +135,10 @@ where
 
         match data {
             Field::Name(s) => existing.name = s.into(),
-            Field::PackageBase(s) => existing.package_base = s.id,
+            Field::PackageBase(s) => existing.base = s.id,
             Field::Version(s) => existing.version = s.into(),
             Field::Description(o) => existing.description = o.into(),
-            Field::URL(o) => existing.url = o.into(),
+            Field::Url(o) => existing.url = o.into(),
             Field::FlaggedAt(date_time) => existing.flagged_at = date_time,
             Field::CreatedAt(date_time) => existing.created_at = date_time,
             Field::UpdatedAt(date_time) => existing.updated_at = date_time,

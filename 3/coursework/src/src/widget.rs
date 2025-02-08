@@ -14,10 +14,13 @@ pub fn centerbox<'a, Message: 'a>(
 
 /// Scrollable but in both vertical and horizontal directions
 pub fn scroll<'a, Message: 'a>(content: impl Into<Element<'a, Message>>) -> Element<'a, Message> {
-    Scrollable::with_direction(content, scrollable::Direction::Both {
-        vertical: scrollable::Scrollbar::default(),
-        horizontal: scrollable::Scrollbar::default(),
-    })
+    Scrollable::with_direction(
+        content,
+        scrollable::Direction::Both {
+            vertical: scrollable::Scrollbar::default(),
+            horizontal: scrollable::Scrollbar::default(),
+        },
+    )
     .into()
 }
 

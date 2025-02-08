@@ -1,61 +1,40 @@
-use super::MaxLength;
+use super::Validatable;
 
 use chrono::{DateTime, Utc};
 use derive_more::{Deref, Into};
 
 pub trait UserRepository<C>:
-    super::CRUD<C, New = New, Update = Field, Unique = Unique, Existing = User>
+    super::Crud<C, New = New, Update = Field, Unique = Unique, Existing = User>
 {
 }
 
 #[derive(Clone, Deref, Into)]
 pub struct Name(String);
-impl MaxLength for Name {
+impl Validatable for Name {
     type Inner = String;
     const MAX_LENGTH: usize = 31;
-}
-impl TryFrom<String> for Name {
-    type Error = (String, &'static str);
-
-    fn try_from(value: String) -> Result<Self, Self::Error> {
-        match Self::validate(&value) {
-            Ok(()) => Ok(Self(value)),
-            Err(e) => Err((value, e)),
-        }
+    fn encapsulate(value: Self::Inner) -> Self {
+        Self(value)
     }
 }
 
 #[derive(Clone, Deref, Into)]
 pub struct Email(String);
-impl MaxLength for Email {
+impl Validatable for Email {
     type Inner = String;
     const MAX_LENGTH: usize = 255;
-}
-impl TryFrom<String> for Email {
-    type Error = (String, &'static str);
-
-    fn try_from(value: String) -> Result<Self, Self::Error> {
-        match Self::validate(&value) {
-            Ok(()) => Ok(Self(value)),
-            Err(e) => Err((value, e)),
-        }
+    fn encapsulate(value: Self::Inner) -> Self {
+        Self(value)
     }
 }
 
 #[derive(Clone, Deref, Into)]
 pub struct Password(String);
-impl MaxLength for Password {
+impl Validatable for Password {
     type Inner = String;
     const MAX_LENGTH: usize = 255;
-}
-impl TryFrom<String> for Password {
-    type Error = (String, &'static str);
-
-    fn try_from(value: String) -> Result<Self, Self::Error> {
-        match Self::validate(&value) {
-            Ok(()) => Ok(Self(value)),
-            Err(e) => Err((value, e)),
-        }
+    fn encapsulate(value: Self::Inner) -> Self {
+        Self(value)
     }
 }
 
@@ -81,7 +60,7 @@ pub struct New {
     pub last_used: Option<DateTime<Utc>>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct User {
     pub(crate) id: u64,
     pub(crate) name: String,

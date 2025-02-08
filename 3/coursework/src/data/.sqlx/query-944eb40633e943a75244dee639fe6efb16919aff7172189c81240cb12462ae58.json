@@ -14,7 +14,7 @@
       },
       {
         "ordinal": 1,
-        "name": "package_base",
+        "name": "base",
         "type_info": {
           "type": "Long",
           "flags": "NOT_NULL | MULTIPLE_KEY | UNSIGNED | NO_DEFAULT_VALUE",

@@ -4,18 +4,14 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-derive_more = { version = "1.0.0", features = ["deref", "into"] }
+derive_more = { version = "2.0.1", features = ["deref", "into"] }
 
+futures = "0.3.31"
 chrono = { version = "0.4.39", default-features = false, features = [
     "std",
     "now",
 ] }
-sqlx = { version = "0.8.3", default-features = false, features = [
-    "mysql",
-    "macros",
-    "chrono",
-    "runtime-tokio",
-] }
+sqlx = { version = "0.8.3", default-features = false, features = ["mysql", "macros", "chrono", "runtime-tokio"] }
 
 # thiserror = "2.0.11"
 # garde = { version = "0.22.0", features = ["email", "url", "derive"] }

@@ -1,12 +1,13 @@
 use super::Authenticated;
-use data::user;
+pub use data::Validation;
+use data::{BoxDynError, user};
 
 use derive_more::{Deref, Into};
 use garde::Validate;
 
 pub type Result<T = (), E = Error> = std::result::Result<T, E>;
 
-pub trait AuthenticationContract {
+pub trait AuthenticationContract: Send {
     fn name_available(&self, name: Name) -> impl Future<Output = Result> + Send;
     fn email_available(&self, email: Email) -> impl Future<Output = Result> + Send;
 
@@ -45,78 +46,110 @@ pub enum Error {
     InvalidPassword(data::BoxDynError),
     #[error("data source error: {0}")]
     Repository(data::BoxDynError),
+
+    #[error(transparent)]
+    Other(data::BoxDynError),
 }
+
+pub type ReturnError<T = String> = (T, BoxDynError);
 
 #[derive(Clone)]
 pub enum Login {
     Name(Name),
     Email(Email),
 }
+impl AsRef<str> for Login {
+    fn as_ref(&self) -> &str {
+        match self {
+            Self::Name(name) => name.as_ref(),
+            Self::Email(email) => email.as_ref(),
+        }
+    }
+}
 impl TryFrom<String> for Login {
-    type Error = (String, &'static str);
+    type Error = ReturnError;
 
     fn try_from(value: String) -> Result<Self, Self::Error> {
         let value = match Email::try_from(value) {
             Ok(x) => return Ok(Self::Email(x)),
-            Err((s, _)) => s,
+            Err((v, _)) => v,
         };
         match Name::try_from(value) {
             Ok(x) => Ok(Self::Name(x)),
-            Err((s, _)) => Err((s, "login is invalid")),
+            Err((v, _)) => Err((v, "login is invalid".into())),
+        }
+    }
+}
+impl From<Login> for String {
+    fn from(val: Login) -> Self {
+        match val {
+            Login::Name(name) => name.0.into(),
+            Login::Email(email) => email.0.into(),
         }
     }
 }
 
 #[derive(Clone, Deref, Into)]
 pub struct Name(user::Name);
+impl AsRef<str> for Name {
+    fn as_ref(&self) -> &str {
+        self.0.as_ref()
+    }
+}
 impl TryFrom<String> for Name {
-    type Error = (String, Box<dyn std::error::Error>);
+    type Error = ReturnError;
 
     fn try_from(value: String) -> Result<Self, Self::Error> {
         #[derive(Validate)]
         #[garde(transparent)]
-        struct Username<'a>(#[garde(alphanumeric, length(chars, min = 2, max = 31))] &'a str);
+        struct Username<'a>(#[garde(ascii, length(chars, min = 2, max = 31))] &'a str);
 
-        if let Err(e) = Username(&value).validate() {
-            return Err((value, e.into()));
+        match Username(value.as_str()).validate() {
+            Ok(()) => (),
+            Err(e) => return Err((value, e.into())),
         }
-        match user::Name::try_from(value) {
-            Ok(x) => Ok(Self(x)),
-            Err((s, e)) => Err((s, e.into())),
-        }
+        Ok(Self(user::Name::new(value)?))
     }
 }
 
 #[derive(Clone, Deref, Into)]
 pub struct Email(user::Email);
+impl AsRef<str> for Email {
+    fn as_ref(&self) -> &str {
+        self.0.as_ref()
+    }
+}
 impl TryFrom<String> for Email {
-    type Error = (String, Box<dyn std::error::Error>);
+    type Error = ReturnError;
 
     fn try_from(value: String) -> Result<Self, Self::Error> {
         #[derive(Validate)]
         #[garde(transparent)]
         pub struct Email<'a>(#[garde(email, length(chars, max = 255))] &'a str);
 
-        if let Err(e) = Email(&value).validate() {
-            return Err((value, e.into()));
+        match Email(value.as_str()).validate() {
+            Ok(()) => (),
+            Err(e) => return Err((value, e.into())),
         }
-        match user::Email::try_from(value) {
-            Ok(x) => Ok(Self(x)),
-            Err((s, e)) => Err((s, e.into())),
-        }
+        Ok(Self(user::Email::new(value)?))
     }
 }
 
 #[derive(Clone, Deref, Into)]
 pub struct Password(String);
+impl AsRef<str> for Password {
+    fn as_ref(&self) -> &str {
+        self.0.as_ref()
+    }
+}
 impl TryFrom<String> for Password {
-    type Error = (String, &'static str);
+    type Error = ReturnError;
 
     fn try_from(value: String) -> Result<Self, Self::Error> {
-        if value.chars().count() >= 8 {
+        if value.chars().count() > 7 {
             Ok(Self(value))
         } else {
-            Err((value, "password must be 8 characters or more"))
+            Err((value, "password must be longer than 7 characters".into()))
         }
     }
 }
