@@ -1,0 +1,173 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (X11; Linux x86_64; rv:134.0) Gecko/20100101 Firefox/134.0" version="26.0.11">
+  <diagram name="Page-1" id="xRsSjXiDyx2HrTEbfJbS">
+    <mxGraphModel dx="804" dy="290" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="aeO1vsXZbVWh7k1FALDI-26" value="Користувач" style="swimlane;fontStyle=1;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;startSize=85;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;" vertex="1" parent="1">
+          <mxGeometry x="130" y="260" width="128.64" height="37.62" as="geometry" />
+        </mxCell>
+        <mxCell id="aeO1vsXZbVWh7k1FALDI-28" value="База Пакунку" style="swimlane;fontStyle=1;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;startSize=85;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;" vertex="1" parent="1">
+          <mxGeometry x="320" y="340" width="128.64" height="37.62" as="geometry" />
+        </mxCell>
+        <mxCell id="aeO1vsXZbVWh7k1FALDI-29" value="Роль Користувача" style="swimlane;fontStyle=1;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;startSize=85;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;" vertex="1" parent="1">
+          <mxGeometry x="320" y="260" width="128.64" height="37.62" as="geometry" />
+        </mxCell>
+        <mxCell id="aeO1vsXZbVWh7k1FALDI-30" value="Залежності Пакунку" style="swimlane;fontStyle=1;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;startSize=85;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;" vertex="1" parent="1">
+          <mxGeometry x="520.0000000000001" y="340" width="128.64" height="37.62" as="geometry" />
+        </mxCell>
+        <mxCell id="aeO1vsXZbVWh7k1FALDI-31" value="Вид залежності" style="swimlane;fontStyle=1;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;startSize=85;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;" vertex="1" parent="1">
+          <mxGeometry x="520" y="420" width="128.64" height="37.62" as="geometry" />
+        </mxCell>
+        <mxCell id="aeO1vsXZbVWh7k1FALDI-32" value="Тип ролі користувача" style="swimlane;fontStyle=1;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;startSize=85;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;" vertex="1" parent="1">
+          <mxGeometry x="514.3199999999999" y="260" width="140" height="37.62" as="geometry" />
+        </mxCell>
+        <mxCell id="aeO1vsXZbVWh7k1FALDI-33" value="Відносини пакунку" style="swimlane;fontStyle=1;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;startSize=85;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;" vertex="1" parent="1">
+          <mxGeometry x="130" y="340" width="128.64" height="37.62" as="geometry" />
+        </mxCell>
+        <mxCell id="aeO1vsXZbVWh7k1FALDI-34" value="Тип відносин" style="swimlane;fontStyle=1;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;startSize=85;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;" vertex="1" parent="1">
+          <mxGeometry x="130" y="420" width="128.64" height="37.62" as="geometry" />
+        </mxCell>
+        <mxCell id="aeO1vsXZbVWh7k1FALDI-35" value="Пакунок" style="swimlane;fontStyle=1;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;startSize=85;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;" vertex="1" parent="1">
+          <mxGeometry x="320" y="420" width="128.64" height="37.62" as="geometry" />
+        </mxCell>
+        <mxCell id="aeO1vsXZbVWh7k1FALDI-36" value="" style="curved=0;startArrow=none;endArrow=none;rounded=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="aeO1vsXZbVWh7k1FALDI-30" target="aeO1vsXZbVWh7k1FALDI-35">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+            <mxPoint x="530" y="460" as="sourcePoint" />
+            <mxPoint x="180" y="350" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aeO1vsXZbVWh7k1FALDI-37" value="0..n&#xa;" style="edgeLabel;resizable=0;labelBackgroundColor=none;fontSize=12;align=right;verticalAlign=top;" vertex="1" parent="aeO1vsXZbVWh7k1FALDI-36">
+          <mxGeometry x="-1" relative="1" as="geometry">
+            <mxPoint x="-6" y="-29" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aeO1vsXZbVWh7k1FALDI-38" value="1" style="edgeLabel;resizable=0;labelBackgroundColor=none;fontSize=12;align=left;verticalAlign=bottom;" vertex="1" parent="aeO1vsXZbVWh7k1FALDI-36">
+          <mxGeometry x="1" relative="1" as="geometry">
+            <mxPoint x="12" y="11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aeO1vsXZbVWh7k1FALDI-40" value="" style="curved=0;startArrow=none;endArrow=none;rounded=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="aeO1vsXZbVWh7k1FALDI-29" target="aeO1vsXZbVWh7k1FALDI-26">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+            <mxPoint x="544" y="370" as="sourcePoint" />
+            <mxPoint x="414" y="370" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aeO1vsXZbVWh7k1FALDI-41" value="0..n&#xa;" style="edgeLabel;resizable=0;labelBackgroundColor=none;fontSize=12;align=right;verticalAlign=top;" vertex="1" parent="aeO1vsXZbVWh7k1FALDI-40">
+          <mxGeometry x="-1" relative="1" as="geometry">
+            <mxPoint y="1" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aeO1vsXZbVWh7k1FALDI-42" value="1" style="edgeLabel;resizable=0;labelBackgroundColor=none;fontSize=12;align=left;verticalAlign=bottom;" vertex="1" parent="aeO1vsXZbVWh7k1FALDI-40">
+          <mxGeometry x="1" relative="1" as="geometry">
+            <mxPoint x="6" y="23" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aeO1vsXZbVWh7k1FALDI-44" value="" style="curved=0;startArrow=none;endArrow=none;rounded=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="aeO1vsXZbVWh7k1FALDI-29" target="aeO1vsXZbVWh7k1FALDI-28">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+            <mxPoint x="544" y="500" as="sourcePoint" />
+            <mxPoint x="414" y="500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aeO1vsXZbVWh7k1FALDI-45" value="0..n&#xa;" style="edgeLabel;resizable=0;labelBackgroundColor=none;fontSize=12;align=right;verticalAlign=top;" vertex="1" parent="aeO1vsXZbVWh7k1FALDI-44">
+          <mxGeometry x="-1" relative="1" as="geometry">
+            <mxPoint x="-4" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aeO1vsXZbVWh7k1FALDI-46" value="1" style="edgeLabel;resizable=0;labelBackgroundColor=none;fontSize=12;align=left;verticalAlign=bottom;" vertex="1" parent="aeO1vsXZbVWh7k1FALDI-44">
+          <mxGeometry x="1" relative="1" as="geometry">
+            <mxPoint x="10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aeO1vsXZbVWh7k1FALDI-51" value="" style="curved=0;startArrow=none;endArrow=none;rounded=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="aeO1vsXZbVWh7k1FALDI-35" target="aeO1vsXZbVWh7k1FALDI-28">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+            <mxPoint x="584" y="410" as="sourcePoint" />
+            <mxPoint x="584" y="338" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aeO1vsXZbVWh7k1FALDI-52" value="0..n&#xa;" style="edgeLabel;resizable=0;labelBackgroundColor=none;fontSize=12;align=right;verticalAlign=top;" vertex="1" parent="aeO1vsXZbVWh7k1FALDI-51">
+          <mxGeometry x="-1" relative="1" as="geometry">
+            <mxPoint x="30" y="-20" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aeO1vsXZbVWh7k1FALDI-53" value="1" style="edgeLabel;resizable=0;labelBackgroundColor=none;fontSize=12;align=left;verticalAlign=bottom;" vertex="1" parent="aeO1vsXZbVWh7k1FALDI-51">
+          <mxGeometry x="1" relative="1" as="geometry">
+            <mxPoint x="-14" y="22" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aeO1vsXZbVWh7k1FALDI-54" value="" style="curved=0;startArrow=none;endArrow=none;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="aeO1vsXZbVWh7k1FALDI-29" target="aeO1vsXZbVWh7k1FALDI-32">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+            <mxPoint x="470" y="350" as="sourcePoint" />
+            <mxPoint x="578.64" y="532" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aeO1vsXZbVWh7k1FALDI-55" value="0..n&#xa;" style="edgeLabel;resizable=0;labelBackgroundColor=none;fontSize=12;align=right;verticalAlign=top;" vertex="1" parent="aeO1vsXZbVWh7k1FALDI-54">
+          <mxGeometry x="-1" relative="1" as="geometry">
+            <mxPoint x="26" y="2" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aeO1vsXZbVWh7k1FALDI-56" value="1" style="edgeLabel;resizable=0;labelBackgroundColor=none;fontSize=12;align=left;verticalAlign=bottom;" vertex="1" parent="aeO1vsXZbVWh7k1FALDI-54">
+          <mxGeometry x="1" relative="1" as="geometry">
+            <mxPoint x="-16" y="21" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aeO1vsXZbVWh7k1FALDI-57" value="" style="curved=0;startArrow=none;endArrow=none;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="aeO1vsXZbVWh7k1FALDI-33" target="aeO1vsXZbVWh7k1FALDI-35">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+            <mxPoint x="229" y="309" as="sourcePoint" />
+            <mxPoint x="310" y="309" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aeO1vsXZbVWh7k1FALDI-58" value="0..n&#xa;" style="edgeLabel;resizable=0;labelBackgroundColor=none;fontSize=12;align=right;verticalAlign=top;" vertex="1" parent="aeO1vsXZbVWh7k1FALDI-57">
+          <mxGeometry x="-1" relative="1" as="geometry">
+            <mxPoint x="31" y="-29" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aeO1vsXZbVWh7k1FALDI-59" value="1" style="edgeLabel;resizable=0;labelBackgroundColor=none;fontSize=12;align=left;verticalAlign=bottom;" vertex="1" parent="aeO1vsXZbVWh7k1FALDI-57">
+          <mxGeometry x="1" relative="1" as="geometry">
+            <mxPoint x="-20" y="11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aeO1vsXZbVWh7k1FALDI-62" value="" style="curved=0;startArrow=none;endArrow=none;rounded=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="aeO1vsXZbVWh7k1FALDI-30" target="aeO1vsXZbVWh7k1FALDI-31">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+            <mxPoint x="232" y="310" as="sourcePoint" />
+            <mxPoint x="180" y="402" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aeO1vsXZbVWh7k1FALDI-63" value="0..n&#xa;" style="edgeLabel;resizable=0;labelBackgroundColor=none;fontSize=12;align=right;verticalAlign=top;" vertex="1" parent="aeO1vsXZbVWh7k1FALDI-62">
+          <mxGeometry x="-1" relative="1" as="geometry">
+            <mxPoint x="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aeO1vsXZbVWh7k1FALDI-64" value="1" style="edgeLabel;resizable=0;labelBackgroundColor=none;fontSize=12;align=left;verticalAlign=bottom;" vertex="1" parent="aeO1vsXZbVWh7k1FALDI-62">
+          <mxGeometry x="1" relative="1" as="geometry">
+            <mxPoint x="10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aeO1vsXZbVWh7k1FALDI-65" value="" style="curved=0;startArrow=none;endArrow=none;rounded=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="aeO1vsXZbVWh7k1FALDI-33" target="aeO1vsXZbVWh7k1FALDI-34">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+            <mxPoint x="244" y="328" as="sourcePoint" />
+            <mxPoint x="169" y="401" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aeO1vsXZbVWh7k1FALDI-66" value="0..n&#xa;" style="edgeLabel;resizable=0;labelBackgroundColor=none;fontSize=12;align=right;verticalAlign=top;" vertex="1" parent="aeO1vsXZbVWh7k1FALDI-65">
+          <mxGeometry x="-1" relative="1" as="geometry">
+            <mxPoint x="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aeO1vsXZbVWh7k1FALDI-67" value="1" style="edgeLabel;resizable=0;labelBackgroundColor=none;fontSize=12;align=left;verticalAlign=bottom;" vertex="1" parent="aeO1vsXZbVWh7k1FALDI-65">
+          <mxGeometry x="1" relative="1" as="geometry">
+            <mxPoint x="6" as="offset" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

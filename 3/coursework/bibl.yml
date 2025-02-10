@@ -1,0 +1,142 @@
+# ===== RESULT ==== #
+
+repo:
+  type: Web
+  title: repo
+  author: Білоус А. А.
+  url:
+    value: https://gitea.linerds.us/0x1D8/repo
+    date: 2025-02-10
+
+# ===== RUST ==== #
+rust:
+  type: Web
+  title: Rust Programming Language
+  author: Rust Programming Language
+  url:
+    value: https://www.rust-lang.org/
+    date: 2025-02-09
+
+iced:
+  type: Web
+  title: iced - A cross-platform GUI library for Rust
+  author: iced - A cross-platform GUI library for Rust
+  url:
+    value: https://iced.rs/
+    date: 2025-02-09
+
+sqlx:
+  type: Web
+  title: "GitHub - launchbadge/sqlx: 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries without a DSL. Supports PostgreSQL, MySQL, and SQLite"
+  author: GitHub
+  url:
+    value: https://github.com/launchbadge/sqlx/
+    date: 2025-02-09
+
+# ===== HOWTO ==== #
+
+halloy:
+  type: Web
+  title: Halloy
+  author: Halloy
+  url:
+    value: https://halloy.squidowl.org/
+    date: 2025-02-09
+
+iced-guide:
+  type: Web
+  title: Introduction - Unofficial Iced Guide
+  author: GitHub Pages
+  url:
+    value: https://jl710.github.io/iced-guide/
+    date: 2025-02-09
+
+iced-editor:
+  type: Web
+  title: Building a simple text editor with iced, a cross-platform GUI library for Rust
+  author: iced-rs
+  publisher: YouTube
+  url:
+    value: https://www.youtube.com/watch?v=gcBJ7cPSALo
+    date: 2025-02-09
+
+# ===== DESIGN ==== #
+
+# Richard Feldman. Making Impossible States Impossible, 2016. YouTube. URL: https://www.youtube.com/watch?v=IcgmSRJHu_8 (date of access: 09.02.2025).
+elm-conf:
+  type: Web
+  title: Making Impossible States Impossible, 2016
+  author: Richard Feldman
+  publisher: YouTube
+  url:
+    value: https://www.youtube.com/watch?v=IcgmSRJHu_8
+    date: 2025-02-09
+
+hexagonal:
+  type: Web
+  title: How to apply hexagonal architecture to Rust
+  author: Josip Benko-Đaković
+  publisher: Barrage
+  url:
+    value: https://www.barrage.net/blog/technology/how-to-apply-hexagonal-architecture-to-rust/
+    date: 2025-02-09
+
+state-machines:
+  type: Web
+  title: Pretty State Machine Patterns in Rust
+  author: Hoverbear
+  url:
+    value: https://hoverbear.org/blog/rust-state-machine-pattern/
+    date: 2025-02-09
+
+# ===== EXAMPLES ==== #
+
+aur:
+  type: Web
+  title: AUR (en) - Home
+  author: AUR (en) - Home
+  url:
+    value: https://aur.archlinux.org/
+    date: 2025-02-09
+
+archlinux: # I use Arch btw!
+  type: Web
+  title: Arch Linux
+  author: Arch Linux
+  url:
+    value: https://archlinux.org/
+    date: 2025-02-09
+
+# ===== TOOLS ==== #
+
+neovim:
+  type: Web
+  title: Neovim
+  author: Neovim
+  url:
+    value: https://neovim.io/
+    date: 2025-02-09
+
+mysql:
+  type: Web
+  title: MySQL
+  author: MySQL
+  url:
+    value: https://www.mysql.com/
+    date: 2025-02-09
+
+docker:
+  type: Web
+  title: "Docker: accelerated container application development"
+  author: Docker
+  url:
+    value: https://www.docker.com/
+    date: 2025-02-09
+
+compose:
+  type: Web
+  title: Docker compose
+  author: Docker Documentation
+  url:
+    value: https://docs.docker.com/compose/
+    date: 2025-02-09
