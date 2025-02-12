@@ -102,7 +102,7 @@ impl TryFrom<String> for Name {
     fn try_from(value: String) -> Result<Self, Self::Error> {
         #[derive(Validate)]
         #[garde(transparent)]
-        struct Username<'a>(#[garde(ascii, length(chars, min = 2, max = 31))] &'a str);
+        struct Username<'a>(#[garde(alphanumeric, length(chars, min = 2, max = 31))] &'a str);
 
         match Username(value.as_str()).validate() {
             Ok(()) => (),

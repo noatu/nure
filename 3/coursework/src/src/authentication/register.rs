@@ -1,4 +1,4 @@
-use crate::input::Input;
+use crate::input::{self, Input, Value};
 use crate::widget::centerbox;
 use service::authentication::{self, Email, Name, Password, RegisterData};
 use service::{
@@ -15,7 +15,7 @@ pub struct Register<S> {
     name: Input<Name>,
     email: Input<Email>,
     password: Input<Password>,
-    repeat: Input<Password>,
+    repeat: Input<String>,
     show_password: bool,
 
     state: State,
@@ -23,6 +23,7 @@ pub struct Register<S> {
 }
 enum State {
     None,
+    Success,
     Requesting,
     Error(String),
 }
@@ -72,7 +73,10 @@ impl<S: AuthenticationContract + 'static> Register<S> {
     }
 
     fn check_passwords(&mut self) {
-        if self.password.as_ref() != self.repeat.as_ref() {
+        if self.password.as_ref() == self.repeat.as_ref() {
+            self.repeat
+                .set_value(Value::Valid(self.repeat.as_ref().to_string()));
+        } else {
             self.repeat.set_error(&"passwords are different");
         }
     }
@@ -86,7 +90,7 @@ impl<S: AuthenticationContract + 'static> Register<S> {
                 self.check_passwords();
             }
             Message::RepeatChanged(s) => {
-                self.repeat.update(s);
+                self.repeat.set_value(Value::Valid(s));
                 self.check_passwords();
             }
             Message::ShowPasswordToggled(b) => self.show_password = b,
@@ -97,10 +101,10 @@ impl<S: AuthenticationContract + 'static> Register<S> {
             Message::EmailSubmitted => return Some(self.password.focus().into()),
             Message::PasswordSubmitted if self.password.critical() => (),
             Message::PasswordSubmitted => return Some(self.repeat.focus().into()),
-            Message::RepeatSubmitted if self.repeat.critical() => (),
+            Message::RepeatSubmitted if self.repeat.error().is_some() => (),
 
             Message::RegisterPressed | Message::RepeatSubmitted => {
-                if self.repeat.critical() {
+                if self.repeat.error().is_some() {
                     return Some(self.repeat.focus().into());
                 }
 
@@ -140,7 +144,10 @@ impl<S: AuthenticationContract + 'static> Register<S> {
 
             Message::LoginPressed => return Some(Event::SwitchToLogin),
             Message::RequestResult(r) => match &*r {
-                Ok(a) => return Some(Event::Authenticated(a.clone())),
+                Ok(a) => {
+                    self.state = State::Success;
+                    return Some(Event::Authenticated(a.clone()))
+                }
 
                 Err(e) => {
                     self.state = State::None;
@@ -220,6 +227,7 @@ impl<S: AuthenticationContract + 'static> Register<S> {
 
         match &self.state {
             State::None => error.map_or_else(|| "Register".into(), Into::into),
+            State::Success => "Success".into(),
             State::Requesting => "Requesting...".into(),
             State::Error(e) => e.into(),
         }

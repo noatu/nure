@@ -1,13 +1,13 @@
+use crate::Result;
 use crate::port::search::{Data, Entry, Mode, Order, SearchRepository};
-use crate::{Result, adapter::mysql::search};
 
 // use chrono::Utc;
 use futures::TryStreamExt;
 use sqlx::{Executor, MySql, QueryBuilder, Row};
 
-pub struct UserAdapter;
+pub struct SearchAdapter;
 
-impl<E> SearchRepository<E> for UserAdapter
+impl<E> SearchRepository<E> for SearchAdapter
 where
     E: Send,
     for<'a> &'a E: Executor<'a, Database = MySql>,
@@ -139,13 +139,13 @@ mod tests {
         let data = Data {
             mode: Mode::NameAndDescription,
             order: Order::UpdatedAt,
-            search: Search::new("f")?,
+            search: Search::new("f").map_err(|e| e.1)?,
             limit: 50,
             exact: true,
             ascending: false,
         };
 
-        UserAdapter::search(&pool, data).await?;
+        SearchAdapter::search(&pool, data).await?;
 
         Ok(())
     }

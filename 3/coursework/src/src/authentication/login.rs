@@ -22,6 +22,7 @@ pub struct Login<S> {
 enum State {
     None,
     Requesting,
+    Success,
     Error(String),
 }
 
@@ -104,7 +105,10 @@ impl<S: AuthenticationContract + 'static> Login<S> {
                 );
             }
             Message::RequestResult(r) => match &*r {
-                Ok(a) => return Some(Event::Authenticated(a.clone())),
+                Ok(a) => {
+                    self.state = State::Success;
+                    return Some(Event::Authenticated(a.clone()));
+                }
 
                 Err(e) => {
                     self.state = State::None;
@@ -170,6 +174,7 @@ impl<S: AuthenticationContract + 'static> Login<S> {
 
         match &self.state {
             State::None => error.map_or_else(|| "Login".into(), Into::into),
+            State::Success => "Success".into(),
             State::Requesting => "Requesting...".into(),
             State::Error(e) => e.into(),
         }

@@ -23,7 +23,7 @@ pub struct Data {
     pub order: Order,
     pub search: Search,
 
-    pub limit: u8,
+    pub limit: u16,
     pub exact: bool,
     pub ascending: bool,
 }

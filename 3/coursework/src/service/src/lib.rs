@@ -1,8 +1,8 @@
 pub mod authentication;
+pub mod search;
 
 pub use authentication::{
     Authenticated, AuthenticationAdapter, AuthenticationContract, AuthenticationRepository,
     AuthenticationService,
 };
-
-// pub 
+pub use search::{Search, SearchAdapter, SearchContract, SearchRepository, SearchService};

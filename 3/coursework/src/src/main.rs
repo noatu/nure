@@ -1,15 +1,12 @@
 // mod main_window;
 // mod authentication;
+mod authentication;
 mod input;
-mod login;
-mod register;
 mod widget;
 
 use std::sync::Arc;
 
-use crate::login::Login;
-use crate::register::Register;
-// use crate::authentication::Authentication;
+use crate::authentication::Authentication;
 // use crate::main_window::MainWindow;
 
 use data::{MySqlPool, MySqlUserAdapter, SqlxPool};
@@ -40,18 +37,9 @@ fn main() -> iced::Result {
 struct Repository {
     scale_factor: f64,
     main_id: window::Id,
-    login:
-        Login<AuthenticationService<AuthenticationAdapter<MySqlPool, SqlxPool, MySqlUserAdapter>>>,
-    register: Register<
+    authentication: Authentication<
         AuthenticationService<AuthenticationAdapter<MySqlPool, SqlxPool, MySqlUserAdapter>>,
     >,
-    screen: Screen,
-    // authentication: Authentication,
-}
-
-enum Screen {
-    Login,
-    Register,
 }
 
 #[derive(Debug)]
@@ -61,8 +49,7 @@ enum Message {
     WindowOpened(window::Id),
     WindowClosed(window::Id),
 
-    Login(login::Message),
-    Register(register::Message),
+    Authentecation(authentication::Message),
     // MainWindow(main_window::Message),
 }
 
@@ -87,9 +74,7 @@ impl Repository {
             Self {
                 scale_factor: 1.4,
                 main_id,
-                login: Login::new(auth_service.clone()),
-                register: Register::new(auth_service),
-                screen: Screen::Login,
+                authentication: Authentication::new(auth_service),
             },
             Task::batch([
                 open_task.map(Message::WindowOpened),
@@ -112,24 +97,14 @@ impl Repository {
                     return iced::exit();
                 }
             }
-            Message::Login(message) => {
-                if let Some(action) = self.login.update(message) {
+            Message::Authentecation(message) => {
+                if let Some(action) = self.authentication.update(message) {
                     match action {
-                        login::Event::SwitchToRegister => self.screen = Screen::Register,
-                        login::Event::Task(task) => return task.map(Message::Login),
-                        login::Event::Authenticated(authenticated) => {
-                            log!("authenticated via login {:#?}", authenticated);
+                        authentication::Event::Task(task) => {
+                            return task.map(Message::Authentecation);
                         }
-                    }
-                }
-            }
-            Message::Register(message) => {
-                if let Some(action) = self.register.update(message) {
-                    match action {
-                        register::Event::SwitchToLogin => self.screen = Screen::Login,
-                        register::Event::Task(task) => return task.map(Message::Register),
-                        register::Event::Authenticated(authenticated) => {
-                            log!("authenticated via register: {:#?}", authenticated);
+                        authentication::Event::Authenticated(authenticated) => {
+                            log!("authenticated via login {:#?}", authenticated);
                         }
                     }
                 }
@@ -145,10 +120,7 @@ impl Repository {
     fn view(&self, id: window::Id) -> Element<Message> {
         if self.main_id == id {
             // self.main_window.view().map(Message::MainWindow)
-            match self.screen {
-                Screen::Login => self.login.view().map(Message::Login),
-                Screen::Register => self.register.view().map(Message::Register),
-            }
+            self.authentication.view().map(Message::Authentecation)
         } else {
             center(row!["This window is unknown.", "It may be closed."]).into()
         }
@@ -156,10 +128,7 @@ impl Repository {
 
     fn title(&self, _: window::Id) -> String {
         // "Repository".into()
-        match self.screen {
-            Screen::Login => self.login.title(),
-            Screen::Register => self.register.title(),
-        }
+        self.authentication.title()
     }
 
     fn subscription(&self) -> Subscription<Message> {
