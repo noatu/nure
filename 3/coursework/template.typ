@@ -180,6 +180,21 @@
     v(spacing * 2, weak: true)
   }
 
+  // listings
+  show raw: it => {
+    let new_spacing = 0.5em
+    set block(spacing: new_spacing)
+    set par(
+      spacing: new_spacing,
+      leading: new_spacing,
+    )
+    set text(size: 11pt, font: "Courier New", weight: "semibold")
+
+    v(spacing * 2.5, weak: true)
+    pad(it, left: 1.25cm)
+    v(spacing * 2.5, weak: true)
+  }
+
   it
 }
 
