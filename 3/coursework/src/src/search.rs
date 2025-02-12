@@ -158,7 +158,15 @@ impl Table {
                 entry
                     .url
                     .as_ref()
-                    .map_or("-".into(), |s| url(&"link", Message::URLPressed(s.clone()))),
+                    .map_or("-".into(), |s| 
+
+                    tip(
+                        url(&"link", Message::URLPressed(s.clone())),
+                        s.clone(),
+                        tip::Position::Bottom,
+                    ),
+
+                    ),
             );
             table[4].push(text(entry.description.to_string()).into());
             table[5].push(text(entry.updated_at.to_string()).into());

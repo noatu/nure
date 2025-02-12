@@ -34,9 +34,11 @@ struct Repository {
     >,
 }
 
+#[derive(Default)]
 enum Screen {
     Search,
     // Statistics,
+    #[default]
     Authentication,
 }
 
@@ -76,8 +78,7 @@ impl Repository {
             Self {
                 main_id,
                 scale_factor: 1.4,
-                screen: Screen::Search,
-
+                screen: Screen::default(),
 
                 authenticated: None,
 
@@ -112,7 +113,7 @@ impl Repository {
                             return task.map(Message::Authentecation);
                         }
                         authentication::Event::Authenticated(authenticated) => {
-                            log!("authenticated as {:#?}", authenticated);
+                            log!("authenticated as {:#?}", *authenticated);
                             self.authenticated = Some(authenticated);
                             self.screen = Screen::Search;
                         }
@@ -126,13 +127,21 @@ impl Repository {
                             return task.map(Message::Search);
                         }
                         search::Event::OpenPackage(id) => {
-                            log!("opening package {id}")
+                            log!("opening package {id}");
                         }
                         search::Event::OpenBase(id) => {
-                            log!("opening package base {id}")
+                            log!("opening package base {id}");
                         }
                         search::Event::OpenURL(url) => {
-                            log!("opening url {url}")
+                            log!("opening url {url}");
+                            match open::that(url.as_ref()) {
+                                Ok(()) => {
+                                    log!("opened url {url}");
+                                }
+                                Err(e) => {
+                                    log!("can't open url \"{url}\": {e}");
+                                }
+                            }
                         }
                     }
                 }
@@ -155,7 +164,10 @@ impl Repository {
 
     fn title(&self, _: window::Id) -> String {
         // "Repository".into()
-        self.authentication.title()
+        match self.screen {
+            Screen::Search => self.search.title(),
+            Screen::Authentication => self.authentication.title(),
+        }
     }
 
     fn subscription(&self) -> Subscription<Message> {

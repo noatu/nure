@@ -36,12 +36,12 @@ pub mod tip {
 /// Tooltip with some styling applied
 pub fn tip<'a, Message: 'a>(
     content: impl Into<Element<'a, Message>>,
-    tip: &'a str,
+    tip: impl ToString,
     position: tip::Position,
 ) -> Element<'a, Message> {
     tooltip(
         content,
-        container(text(tip).size(14))
+        container(text(tip.to_string()).size(14))
             .padding(5)
             .style(container::dark),
         position,
