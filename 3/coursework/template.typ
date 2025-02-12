@@ -292,7 +292,7 @@
 
     #v(1fr)
 
-    Харків -- #datetime.today().display("[year]")
+    Харків -- #task_list.done_date.display("[year]")
 
     #pagebreak()
   ]
@@ -387,14 +387,14 @@
     linebreak()
 
     grid(
-      columns: (6fr, 5fr),
+      columns: (5fr, 5fr),
       grid(
-        columns: (1fr, 3fr, 1fr),
+        columns: (1fr, 2fr, 1fr),
         gutter: 0.2fr,
         [
           Студент \
           Керівник \
-          #align(center)["#calendar_plan.approval_date.day()"]
+          #align(center)["#underline[#calendar_plan.approval_date.day()]"]
         ],
         [
           #uline(align: center, []) \
@@ -403,7 +403,7 @@
         ],
         [
           \ \
-          #calendar_plan.approval_date.year() р.
+          #underline[#calendar_plan.approval_date.year()] р.
         ],
       ),
       [
@@ -439,7 +439,7 @@
     \
 
     #{
-      let keywords = abstract.keywords
+      let keywords = abstract.keywords.map(upper)
       let is_cyrillic = word => word.split("").any(char => ("А" <= char and char <= "я"))
 
       let n = keywords.len()

@@ -63,7 +63,7 @@
 #let abstract = (
   keywords: (
     "БАЗА ДАНИХ",
-    // "АВТОМАТИЗАЦІЯ",
+    "АВТОМАТИЗАЦІЯ",
     "РЕПОЗИТОРІЙ",
     "ПАКУНОК",
     "RUST",
@@ -652,9 +652,9 @@ INSERT INTO RelationTypes (id, name) VALUES
 - id - службове додатнє число, необхідне для ідентифікації таблиці та забезпечення надійної роботи бази даних;
 - архітектура - текстове поле, зберігає цільову архітектуру зв'яку (до 63 символів), може бути порожнім;
 - умова - текстове поле, яке зберігає умову зв'яку (до 255 символів), може бути порожнім;
-- пакет - зовнішній ключ на таблицю Packages;
+- пакунок - зовнішній ключ на таблицю Packages;
 - тип зв'язку - зовнішній ключ на таблицю RelationTypes;
-- тип зв'язку з пакетом - текстове поле, зберігає назву пакунку, з яким є зв'язок (до 127 символів), не може бути порожнім.
+- тип зв'язку з пакунком - текстове поле, зберігає назву пакунку, з яким є зв'язок (до 127 символів), не може бути порожнім.
 
 ```sql
 -- Track which conflicts, provides and replaces a package has
@@ -674,12 +674,254 @@ CREATE TABLE PackageRelations (
 
 == Опис програмної реалізації
 
+При запуску комп'ютерної програми стартовим екраном є сторінка логіну @repo_login. Користувачі з існуючими акаунтами можуть увійти у свій акаунт за допомогою пошти або юзернема та свого паролю який надійно та безпечно зберігається в базі даних у зашифрованому вигляді.
 
 #img("img/repo/repo_login.png", "Сторінка логіну")
 
+Якщо у користувача немає акаунту, то він може натиснути на кнопку реєстраці для переходу на сторікну реєстарції @repo_register. Щоб створити новий акаунт. Користувач має надати ім'я користувача, електрону пошту та пароль.
 
-#img("img/repo/repo_login.png", "Сторінка регістрації")
+Форми логіну та реєстрації перевіряють дані на валідність та не будуть робити зайвих запитів, якщо надана інформація не відповідає правилам інформаційної системи. У випадку перевірок. які не можуть бути зроблені локально, система надішле запит до бази даних і відобразить результат у графічному інтерфейсі програми.
 
+#img("img/repo/repo_register.png", "Сторінка реєстрації")
+
+Після успішного логіну або реєстрації програма перейде на сторінку пошуку @repo_search, яка надає можливість шукати пакунки з багатьма способами фільтрування та сортування результатів. При наведені курсору миші на елементи пошуку можна побачити стисле пояснення їх функціоналу.
+
+Назва пакунку, його бази та його веб-покликання на ресурс є інтерактивними. Якщо натиснути на назву пакунку, то відкриється вікно з переглядом інформації та статистики про пакунок. Якщо натиснути на назву бази пакунку, то відкриється відкно де буде інформація про базу пакунку. При натисканні на веб-покликання, воно відкриєтсья в веб-браузері, котрий стоїть за замовчуванням в операціній системі користувача.
+
+#img("img/repo/repo_search.png", "Сторінка пошуку")
+
+Розглянемо на прикладі сторінки пошуку обробку запиту на основі даних з графічного інтерфейсу котрі ввів користувач.
+
+Коли користувач натискає кнопку "Go", або натискає клавішу "Enter" у текстовому полі пошуку, генерується внутрішнє повідомлення "Search". Обробник повідомлень сторінки пошуку отримує це повідомлення, та починає валідацію даних текстового поля та створення структури даних з параметрами пошуку. Після чого, якщо на момент запиту не виконується інших пошукових запитів, дані з параметрами пошуку передаються до сервісу пошуку. Сервіс передає дані до адаптеру репозиторію пошуку. Адаптер репозиторію пошуку встановлює з'єднання до бази даних, і робить запит до адаптеру репозиторію пошуку бази даних з встановленим з'єднанням, після чого він закриє з'єднання до бази даних. Адаптер репозиторію пошуку бази даних використовує передане йому підключення для виконання комплексного SQL запиту який будується на основі переданих йому параметрів пошуку. Після отримання результату з бази даних, він конвертує його у набір записів інформації про пакунок. Цей набір записів буде переданий назад до адаптеру репозиторію пошуку, потім до сервісу, й у кінці передається у повідомленні "RequestResult" до сторінки пошуку, яка зможе відобразити кожен запис як рядок у таблиці.
+
+Якщо на будь-якому рівні абстракції виникне помилка, то вона буде передана до графічного інтерфейсу сторінки пошуку і користувач буде сповіщений про виникнення помилки.
+
+Код обробника повідомлення "Search" з валідацією даних:
+```rs
+let search_data = Data {
+    mode: self.mode.into(),
+    order: self.order.into(),
+    search: match self.input.submit() {
+        Ok(x) => x,
+        Err(t) => return Some(t.into()),
+    },
+    limit: self.limit.into(),
+    exact: self.exact,
+    ascending: self.ascending,
+};
+
+self.state = State::Searching;
+let arc = self.service.clone();
+
+return Some(
+    Task::perform(
+        async move {
+            let Some(service) = arc.try_lock() else {
+                return Err("other search request is being performed".into());
+            };
+            service.search(search_data).await
+        },
+        |r| Message::RequestResult(Arc::new(r)),
+    )
+        .into(),
+);
+```
+
+Код функції пошуку сервісу пошуку:
+```rs
+async fn search(&self, data: Data) -> Result<Vec<search::Entry>> {
+    self.repository.search(data.into()).await
+}
+```
+
+Код функції пошуку адаптеру репозиторію пошуку:
+
+```rs
+async fn search(&self, data: Data) -> Result<Vec<Entry>> {
+    let c = self.driver.open_connection().await?;
+    let result = SR::search(&c, data).await?;
+    D::close_connection(c).await?;
+
+    Ok(result)
+}
+```
+
+Код функції пошуку адаптеру репозиторію пошуку бази даних:
+```rs
+async fn search(connection: &E, data: Data) -> Result<Vec<Entry>> {
+    let mut builder = QueryBuilder::new(
+        "SELECT \
+            p.id, p.name, p.version, p.url, p.description, \
+            p.updated_at, p.created_at, \
+            pb.id AS base_id, pb.name AS base_name, \
+        ( \
+            SELECT COUNT(DISTINCT pbur.user) \
+            FROM PackageBaseUserRoles pbur \
+            WHERE pbur.base = pb.id AND pbur.role = 3 \
+        ) AS maintainers_num \
+        FROM \
+            Packages p \
+        JOIN \
+            PackageBases pb ON p.base = pb.id ",
+    );
+
+    let mut push_search = |cond, param| {
+        builder.push(format_args!(
+            " {cond} {param} {} ",
+            if data.exact { "=" } else { "LIKE" }
+        ));
+        builder.push_bind(if data.exact {
+            data.search.to_string()
+        } else {
+            format!("%{}%", data.search.as_str())
+        });
+    };
+
+    let join_user = " JOIN PackageBaseUserRoles pbur ON pb.id = pbur.base \
+            JOIN Users u ON pbur.user = u.id WHERE ";
+
+    match data.mode {
+        Mode::Url => push_search("WHERE", "p.url"),
+        Mode::Name => push_search("WHERE", "p.name"),
+        Mode::PackageBase => push_search("WHERE", "pb.name"),
+        Mode::Description => push_search("WHERE", "p.description"),
+        Mode::BaseDescription => push_search("WHERE", "pb.description"),
+        Mode::NameAndDescription => {
+            // WHERE (p.name LIKE '%search_term%' OR p.description LIKE '%search_term%')
+            builder.push(" WHERE p.name LIKE ");
+            builder.push_bind(format!("%{}%", data.search.as_str()));
+            builder.push(" OR p.description LIKE ");
+            builder.push_bind(format!("%{}%", data.search.as_str()));
+        }
+        Mode::User => {
+            push_search(
+                "WHERE EXISTS ( \
+                SELECT 1 \
+                FROM PackageBaseUserRoles pbur \
+                JOIN Users u ON pbur.user = u.id \
+                WHERE pbur.base = pb.id AND",
+                "u.name",
+            );
+            builder.push(" ) ");
+        }
+        Mode::Flagger => {
+            push_search(join_user, "u.name");
+            builder.push(" AND pbur.role = 4 ");
+        } // 4
+        Mode::Packager => {
+            push_search(join_user, "u.name");
+            builder.push(" AND pbur.role = 2 ");
+        } // 2
+        Mode::Submitter => {
+            push_search(join_user, "u.name");
+            builder.push(" AND pbur.role = 1 ");
+        } // 1
+        Mode::Maintainer => {
+            push_search(join_user, "u.name");
+            builder.push(" AND pbur.role = 3 ");
+        } // 3
+    }
+
+    builder.push(format_args!(
+        " ORDER BY {} {} LIMIT {};",
+        match data.order {
+            Order::Name => "p.name",
+            Order::Version => "p.version",
+            Order::BaseName => "pb.name",
+            Order::UpdatedAt => "p.updated_at",
+            Order::CreatedAt => "p.created_at",
+        },
+        if data.ascending { "ASC" } else { "DESC" },
+        data.limit
+    ));
+
+    let mut entries = Vec::new();
+
+    let mut rows = builder.build().fetch(connection);
+    while let Some(row) = rows.try_next().await? {
+        entries.push(Entry {
+            id: row.try_get("id")?,
+            name: row.try_get("name")?,
+            version: row.try_get("version")?,
+            base_id: row.try_get("base_id")?,
+            base_name: row.try_get("base_name")?,
+            url: row.try_get("url")?,
+            description: row.try_get("description")?,
+            // submitter_id: row.try_get("submitter_id")?,
+            // submitter_name: row.try_get("submitter_name")?,
+            updated_at: row.try_get("updated_at")?,
+            created_at: row.try_get("created_at")?,
+        });
+    }
+
+    Ok(entries)
+}
+```
+
+Код обробки для повідомлення "RequestResult":
+```rs
+Message::RequestResult(r) => match &*r {
+    Ok(v) => self.state = State::Table(Table(v.clone())),
+    Err(e) => self.state = State::Error(e.to_string()),
+},
+```
+
+Код відображення таблиці результату пошуку:
+```rs
+pub fn view(&self) -> Element<'static, Message> {
+    let mut table: Vec<_> = [
+        "Package",      // 0
+        "Version",      // 1
+        "Base",         // 2
+        "URL",          // 3
+        "Description",  // 4
+        "Last Updated", // 5
+        "Created",      // 6
+    ]
+    .into_iter()
+    .map(|s| {
+        let mut v = Vec::with_capacity(self.0.len());
+        v.push(s.into());
+        v.push("".into());
+        v
+    })
+    .collect();
+
+    for entry in &self.0 {
+        table[0].push(url(&entry.name, Message::PackagePressed(entry.id)));
+        table[1].push(text(entry.version.to_string()).into());
+        table[2].push(url(&entry.base_name, Message::BasePressed(entry.base_id)));
+        table[3].push(
+            entry
+                .url
+                .as_ref()
+                .map_or("-".into(), |s| 
+
+                tip(
+                    url(&"link", Message::URLPressed(s.clone())),
+                    s.clone(),
+                    tip::Position::Bottom,
+                ),
+
+                ),
+        );
+        table[4].push(text(entry.description.to_string()).into());
+        table[5].push(text(entry.updated_at.to_string()).into());
+        table[6].push(text(entry.created_at.to_string()).into());
+        // table[5].push(Element::from(column( entry .maintainers .iter() .map(|(id, s)| url(s, Message::UserPressed(*id))),)));
+    }
+
+    scroll(
+        row(table
+            .into_iter()
+            .map(|v| Column::from_vec(v).spacing(5).into()))
+        .spacing(20)
+        .padding(30),
+    )
+}
+```
+
+Подібну реалізацію мають всі частини програми. Представлений програмний код демонструє ефективну реалізацію принципів гексагональної архітектури@hexagonal. Структура коду чітко відображає розділення на рівні, кожен з яких відповідає за визначену функціональну роль, що є ключовою характеристикою даної архітектурної парадигми. Цей підхід надає чітке розмежування відповідальності де кожен компонент системи, від інтерфейсу користувача до адаптерів баз даних, має чітко визначений набір обов'язків. Це полегшує процес розробки та спрощує підтримку програмного забезпечення у довгостроковій перспективі. Незалежність бізнес-логіки від інфраструктурних рішень дозволяє спростити процес міграції до простого доповнення арсеналу адаптерів. Сервісний шар, що містить основну бізнес-логіку пошуку, не залежить від конкретних технологій зберігання даних або реалізації графічного інтерфейсу, тому його можна буде використати в інших проектах. Крім того, модульна архітектура дозволяє проводити ізольоване тестування кожного компонента, за допомогою використання макетів (mock objects) для залежностей що забезпечить глибоке покриття коду тестами.
 
 #nheading("Висновки")
 
