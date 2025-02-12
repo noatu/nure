@@ -8,6 +8,7 @@ data = { path = "data" }
 service = { path = "service" }
 
 iced = { version = "0.13.1", features = ["tokio", "lazy"] }
+strum = { version = "0.27.0", features = ["derive"] }
 
 [workspace]
 resolver = "2"

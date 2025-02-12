@@ -37,8 +37,8 @@ pub struct Entry {
     pub base_name: Box<str>,
     pub url: Option<Box<str>>,
     pub description: Box<str>,
-    pub submitter_id: u64,
-    pub submitter_name: Box<str>,
+    // pub submitter_id: u64,
+    // pub submitter_name: Box<str>,
     pub updated_at: DateTime<Utc>,
     pub created_at: DateTime<Utc>,
 }

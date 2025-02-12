@@ -111,8 +111,8 @@ where
                 base_name: row.try_get("base_name")?,
                 url: row.try_get("url")?,
                 description: row.try_get("description")?,
-                submitter_id: row.try_get("submitter_id")?,
-                submitter_name: row.try_get("submitter_name")?,
+                // submitter_id: row.try_get("submitter_id")?,
+                // submitter_name: row.try_get("submitter_name")?,
                 updated_at: row.try_get("updated_at")?,
                 created_at: row.try_get("created_at")?,
             });

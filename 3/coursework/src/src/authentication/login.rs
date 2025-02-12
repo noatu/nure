@@ -1,9 +1,8 @@
 use crate::input::Input;
 use crate::widget::centerbox;
-use service::authentication;
 use service::{
     Authenticated, AuthenticationContract,
-    authentication::{Error, LoginData, Result},
+    authentication::{self, Error, LoginData, Result},
 };
 
 use iced::futures::lock::Mutex;

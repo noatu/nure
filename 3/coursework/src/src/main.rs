@@ -1,45 +1,43 @@
-// mod main_window;
-// mod authentication;
 mod authentication;
 mod input;
+mod search;
+//mod statistics;
 mod widget;
 
 use std::sync::Arc;
 
 use crate::authentication::Authentication;
-// use crate::main_window::MainWindow;
+use crate::search::Search;
+//use crate::statistics::Statistics;
 
-use data::{MySqlPool, MySqlUserAdapter, SqlxPool};
+use data::{MySqlPool, MySqlSearchAdapter, MySqlUserAdapter, SqlxPool};
 use iced::{
     Element, Subscription, Task, Theme,
     futures::lock::Mutex,
     widget::{center, row},
     window,
 };
-use service::{AuthenticationAdapter, AuthenticationService};
-
-// #[macro_export]
-macro_rules! log {
-    ($($arg:tt)*) => {
-        #[cfg(debug_assertions)]
-        println!($($arg)*)
-    };
-}
-
-fn main() -> iced::Result {
-    iced::daemon(Repository::title, Repository::update, Repository::view)
-        .subscription(Repository::subscription)
-        .scale_factor(Repository::scale_factor)
-        .theme(Repository::theme)
-        .run_with(Repository::new)
-}
+use service::{
+    Authenticated, AuthenticationAdapter, AuthenticationService, SearchAdapter, SearchService,
+};
 
 struct Repository {
     scale_factor: f64,
     main_id: window::Id,
+    screen: Screen,
+
+    authenticated: Option<Authenticated>,
+
+    search: Search<SearchService<SearchAdapter<MySqlPool, SqlxPool, MySqlSearchAdapter>>>,
     authentication: Authentication<
         AuthenticationService<AuthenticationAdapter<MySqlPool, SqlxPool, MySqlUserAdapter>>,
     >,
+}
+
+enum Screen {
+    Search,
+    // Statistics,
+    Authentication,
 }
 
 #[derive(Debug)]
@@ -49,8 +47,8 @@ enum Message {
     WindowOpened(window::Id),
     WindowClosed(window::Id),
 
+    Search(search::Message),
     Authentecation(authentication::Message),
-    // MainWindow(main_window::Message),
 }
 
 impl Repository {
@@ -70,10 +68,20 @@ impl Repository {
             AuthenticationAdapter::new(pool.clone()),
         )));
 
+        let search_service = Arc::new(Mutex::new(SearchService::new(SearchAdapter::new(
+            pool.clone(),
+        ))));
+
         (
             Self {
-                scale_factor: 1.4,
                 main_id,
+                scale_factor: 1.4,
+                screen: Screen::Search,
+
+
+                authenticated: None,
+
+                search: Search::new(search_service),
                 authentication: Authentication::new(auth_service),
             },
             Task::batch([
@@ -98,29 +106,48 @@ impl Repository {
                 }
             }
             Message::Authentecation(message) => {
-                if let Some(action) = self.authentication.update(message) {
-                    match action {
+                if let Some(event) = self.authentication.update(message) {
+                    match event {
                         authentication::Event::Task(task) => {
                             return task.map(Message::Authentecation);
                         }
                         authentication::Event::Authenticated(authenticated) => {
-                            log!("authenticated via login {:#?}", authenticated);
+                            log!("authenticated as {:#?}", authenticated);
+                            self.authenticated = Some(authenticated);
+                            self.screen = Screen::Search;
                         }
                     }
                 }
-            } //
-              // Message::MainWindow(message) => match self.main_window.update(message) {
-              //     main_window::Action::None => (),
-              //     main_window::Action::Task(task) => return task.map(Message::MainWindow),
-              // },
+            }
+            Message::Search(m) => {
+                if let Some(event) = self.search.update(m) {
+                    match event {
+                        search::Event::Task(task) => {
+                            return task.map(Message::Search);
+                        }
+                        search::Event::OpenPackage(id) => {
+                            log!("opening package {id}")
+                        }
+                        search::Event::OpenBase(id) => {
+                            log!("opening package base {id}")
+                        }
+                        search::Event::OpenURL(url) => {
+                            log!("opening url {url}")
+                        }
+                    }
+                }
+            }
         }
+
         Task::none()
     }
 
     fn view(&self, id: window::Id) -> Element<Message> {
         if self.main_id == id {
-            // self.main_window.view().map(Message::MainWindow)
-            self.authentication.view().map(Message::Authentecation)
+            match self.screen {
+                Screen::Search => self.search.view().map(Message::Search),
+                Screen::Authentication => self.authentication.view().map(Message::Authentecation),
+            }
         } else {
             center(row!["This window is unknown.", "It may be closed."]).into()
         }
@@ -150,4 +177,20 @@ impl Repository {
     const fn theme(_: &Self, _: window::Id) -> Theme {
         Theme::TokyoNight
     }
+}
+
+#[macro_export]
+macro_rules! log {
+    ($($arg:tt)*) => {
+        #[cfg(debug_assertions)]
+        println!($($arg)*)
+    };
+}
+
+fn main() -> iced::Result {
+    iced::daemon(Repository::title, Repository::update, Repository::view)
+        .subscription(Repository::subscription)
+        .scale_factor(Repository::scale_factor)
+        .theme(Repository::theme)
+        .run_with(Repository::new)
 }

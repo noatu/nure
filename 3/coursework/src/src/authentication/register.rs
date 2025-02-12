@@ -101,13 +101,12 @@ impl<S: AuthenticationContract + 'static> Register<S> {
             Message::EmailSubmitted => return Some(self.password.focus().into()),
             Message::PasswordSubmitted if self.password.critical() => (),
             Message::PasswordSubmitted => return Some(self.repeat.focus().into()),
-            Message::RepeatSubmitted if self.repeat.error().is_some() => (),
-
+            Message::RegisterPressed | Message::RepeatSubmitted
+                if self.repeat.error().is_some() =>
+            {
+                return Some(self.repeat.focus().into());
+            }
             Message::RegisterPressed | Message::RepeatSubmitted => {
-                if self.repeat.error().is_some() {
-                    return Some(self.repeat.focus().into());
-                }
-
                 let register_data = RegisterData {
                     name: match self.name.submit() {
                         Ok(x) => x,
@@ -146,7 +145,7 @@ impl<S: AuthenticationContract + 'static> Register<S> {
             Message::RequestResult(r) => match &*r {
                 Ok(a) => {
                     self.state = State::Success;
-                    return Some(Event::Authenticated(a.clone()))
+                    return Some(Event::Authenticated(a.clone()));
                 }
 
                 Err(e) => {

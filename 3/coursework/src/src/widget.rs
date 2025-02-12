@@ -26,7 +26,7 @@ pub fn scroll<'a, Message: 'a>(content: impl Into<Element<'a, Message>>) -> Elem
 
 /// Clickable url
 pub fn url<'a, Message: Clone + 'a>(txt: &impl ToString, msg: Message) -> Element<'a, Message> {
-    Element::from(mouse_area(text(txt.to_string()).color(color!(0xBB_B6_DF))).on_press(msg))
+    Element::from(mouse_area(text(txt.to_string()).color(color!(0x00_BB_FF))).on_press(msg))
 }
 
 pub mod tip {
