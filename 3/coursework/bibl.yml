@@ -27,7 +27,7 @@ iced:
 
 sqlx:
   type: Web
-  title: "GitHub - launchbadge/sqlx: 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries without a DSL. Supports PostgreSQL, MySQL, and SQLite"
+  title: "GitHub - launchbadge/sqlx: The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries without a DSL. Supports PostgreSQL, MySQL, and SQLite"
   author: GitHub
   url:
     value: https://github.com/launchbadge/sqlx/
@@ -115,7 +115,39 @@ aur:
   author: AUR (en) - Home
   url:
     value: https://aur.archlinux.org/
-    date: 2025-02-09
+    date: 2025-02-06
+
+aur-search:
+  type: Web
+  title: AUR (en) - Packages
+  author: AUR (en) - Home
+  url:
+    value: https://aur.archlinux.org/packages?O=0&K=librewolf
+    date: 2025-02-06
+
+aur-package:
+  type: Web
+  title: AUR (en) - librewolf-bin
+  author: AUR (en) - Home
+  url:
+    value: https://aur.archlinux.org/packages/librewolf-bin
+    date: 2025-02-06
+
+aur-user:
+  type: Web
+  title: AUR (en) - Account lsf
+  author: AUR (en) - Home
+  url:
+    value: https://aur.archlinux.org/account/lsf
+    date: 2025-02-06
+
+aur-search-func:
+  type: Web
+  title: AUR (en) - Packages
+  author: AUR (en) - Home
+  url:
+    value: https://aur.archlinux.org/account/lsf
+    date: 2025-02-06
 
 archlinux: # I use Arch btw!
   type: Web
