@@ -109,6 +109,14 @@ state-machines:
 
 # ===== EXAMPLES ==== #
 
+aurweb:
+  type: Web
+  title: Arch Linux / aurweb · GitLab
+  author: GitLab
+  url:
+    value: https://gitlab.archlinux.org/archlinux/aurweb
+    date: 2025-02-06
+
 aur:
   type: Web
   title: AUR (en) - Home
@@ -158,6 +166,14 @@ archlinux: # I use Arch btw!
     date: 2025-02-09
 
 # ===== TOOLS ==== #
+
+argon2:
+  type: Web
+  title: "GitHub - P-H-C/phc-winner-argon2: The password hash Argon2, winner of PHC"
+  author: GitHub
+  url:
+    value: https://github.com/P-H-C/phc-winner-argon2
+    date: 2025-02-09
 
 neovim:
   type: Web
