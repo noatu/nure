@@ -14,7 +14,7 @@ rust:
   title: Rust Programming Language
   author: Rust Programming Language
   url:
-    value: https://www.rust-lang.org/
+    value: https://www.rust-lang.org
     date: 2025-02-09
 
 iced:
@@ -22,7 +22,7 @@ iced:
   title: iced - A cross-platform GUI library for Rust
   author: iced - A cross-platform GUI library for Rust
   url:
-    value: https://iced.rs/
+    value: https://iced.rs
     date: 2025-02-09
 
 sqlx:
@@ -30,7 +30,7 @@ sqlx:
   title: "GitHub - launchbadge/sqlx: The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries without a DSL. Supports PostgreSQL, MySQL, and SQLite"
   author: GitHub
   url:
-    value: https://github.com/launchbadge/sqlx/
+    value: https://github.com/launchbadge/sqlx
     date: 2025-02-09
 
 # ===== HOWTO ==== #
@@ -40,7 +40,7 @@ halloy:
   title: Halloy
   author: Halloy
   url:
-    value: https://halloy.squidowl.org/
+    value: https://halloy.squidowl.org
     date: 2025-02-09
 
 iced-guide:
@@ -48,7 +48,7 @@ iced-guide:
   title: Introduction - Unofficial Iced Guide
   author: GitHub Pages
   url:
-    value: https://jl710.github.io/iced-guide/
+    value: https://jl710.github.io/iced-guide
     date: 2025-02-09
 
 iced-editor:
@@ -60,6 +60,14 @@ iced-editor:
     value: https://www.youtube.com/watch?v=gcBJ7cPSALo
     date: 2025-02-09
 
+normalization:
+  type: Web
+  title: Database Normalization – Normal Forms 1nf 2nf 3nf Table Examples
+  author: Kolade Chris
+  url:
+    value: https://www.freecodecamp.org/news/database-normalization-1nf-2nf-3nf-table-examples
+    date: 2025-02-09
+
 # ===== DESIGN ==== #
 
 elm:
@@ -67,7 +75,7 @@ elm:
   title: Elm - delightful language for reliable web applications.
   author: Elm - delightful language for reliable web applications.
   url:
-    value: https://elm-lang.org/
+    value: https://elm-lang.org
     date: 2025-02-11
 
 # Richard Feldman. Making Impossible States Impossible, 2016. YouTube. URL: https://www.youtube.com/watch?v=IcgmSRJHu_8 (date of access: 09.02.2025).
@@ -96,7 +104,7 @@ hexagonal:
   author: Josip Benko-Đaković
   publisher: Barrage
   url:
-    value: https://www.barrage.net/blog/technology/how-to-apply-hexagonal-architecture-to-rust/
+    value: https://www.barrage.net/blog/technology/how-to-apply-hexagonal-architecture-to-rust
     date: 2025-02-09
 
 state-machines:
@@ -104,10 +112,10 @@ state-machines:
   title: Pretty State Machine Patterns in Rust
   author: Hoverbear
   url:
-    value: https://hoverbear.org/blog/rust-state-machine-pattern/
+    value: https://hoverbear.org/blog/rust-state-machine-pattern
     date: 2025-02-09
 
-# ===== EXAMPLES ==== #
+# ===== I use Arch btw ==== #
 
 aurweb:
   type: Web
@@ -122,7 +130,7 @@ aur:
   title: AUR (en) - Home
   author: AUR (en) - Home
   url:
-    value: https://aur.archlinux.org/
+    value: https://aur.archlinux.org
     date: 2025-02-06
 
 aur-search:
@@ -162,7 +170,7 @@ archlinux: # I use Arch btw!
   title: Arch Linux
   author: Arch Linux
   url:
-    value: https://archlinux.org/
+    value: https://archlinux.org
     date: 2025-02-09
 
 # ===== TOOLS ==== #
@@ -180,7 +188,7 @@ neovim:
   title: Neovim
   author: Neovim
   url:
-    value: https://neovim.io/
+    value: https://neovim.io
     date: 2025-02-09
 
 mysql:
@@ -188,7 +196,7 @@ mysql:
   title: MySQL
   author: MySQL
   url:
-    value: https://www.mysql.com/
+    value: https://www.mysql.com
     date: 2025-02-09
 
 docker:
@@ -196,7 +204,7 @@ docker:
   title: "Docker: accelerated container application development"
   author: Docker
   url:
-    value: https://www.docker.com/
+    value: https://www.docker.com
     date: 2025-02-09
 
 compose:
@@ -204,5 +212,5 @@ compose:
   title: Docker compose
   author: Docker Documentation
   url:
-    value: https://docs.docker.com/compose/
+    value: https://docs.docker.com/compose
     date: 2025-02-09

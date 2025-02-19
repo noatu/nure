@@ -1,11 +1,11 @@
 <mxfile host="Electron" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/26.0.9 Chrome/128.0.6613.186 Electron/32.3.0 Safari/537.36" version="26.0.9">
   <diagram name="Page-1" id="e56a1550-8fbb-45ad-956c-1786394a9013">
-    <mxGraphModel dx="1395" dy="2456" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" background="none" math="0" shadow="0">
+    <mxGraphModel dx="1195" dy="2456" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" background="none" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="TstbxcchZz1pR3d-lyST-31" value="Пакунок" style="swimlane;html=1;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#e0e0e0;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;align=center;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=14;swimlaneLine=1;" parent="1" vertex="1">
-          <mxGeometry x="480" y="-732" width="160" height="248" as="geometry" />
+          <mxGeometry x="530" y="-1432" width="160" height="248" as="geometry" />
         </mxCell>
         <mxCell id="TstbxcchZz1pR3d-lyST-32" value="Пакунок id" style="shape=partialRectangle;top=0;left=0;right=0;bottom=1;html=1;align=left;verticalAlign=middle;fillColor=none;spacingLeft=34;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;dropTarget=0;fontStyle=5;" parent="TstbxcchZz1pR3d-lyST-31" vertex="1">
           <mxGeometry y="26" width="160" height="30" as="geometry" />
@@ -62,7 +62,7 @@
           <mxGeometry width="30" height="10" as="geometry" />
         </mxCell>
         <mxCell id="TstbxcchZz1pR3d-lyST-70" value="Користувач" style="swimlane;html=1;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#e0e0e0;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;align=center;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=14;swimlaneLine=1;" parent="1" vertex="1">
-          <mxGeometry x="680" y="-860" width="150" height="220" as="geometry" />
+          <mxGeometry x="730" y="-1560" width="150" height="220" as="geometry" />
         </mxCell>
         <mxCell id="TstbxcchZz1pR3d-lyST-71" value="Користувач id" style="shape=partialRectangle;top=0;left=0;right=0;bottom=1;html=1;align=left;verticalAlign=middle;fillColor=none;spacingLeft=34;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;dropTarget=0;fontStyle=5;" parent="TstbxcchZz1pR3d-lyST-70" vertex="1">
           <mxGeometry y="26" width="150" height="30" as="geometry" />
@@ -113,7 +113,7 @@
           <mxGeometry width="30" height="8" as="geometry" />
         </mxCell>
         <mxCell id="TstbxcchZz1pR3d-lyST-116" value="Тип ролі" style="swimlane;html=1;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#e0e0e0;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;align=center;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=14;swimlaneLine=1;" parent="1" vertex="1">
-          <mxGeometry x="270" y="-840" width="160" height="118" as="geometry" />
+          <mxGeometry x="320" y="-1560" width="160" height="118" as="geometry" />
         </mxCell>
         <mxCell id="TstbxcchZz1pR3d-lyST-117" value="Тип ролі id" style="shape=partialRectangle;top=0;left=0;right=0;bottom=1;html=1;align=left;verticalAlign=middle;fillColor=none;spacingLeft=34;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;dropTarget=0;fontStyle=5;" parent="TstbxcchZz1pR3d-lyST-116" vertex="1">
           <mxGeometry y="26" width="160" height="30" as="geometry" />
@@ -140,7 +140,7 @@
           <mxGeometry width="30" height="10" as="geometry" />
         </mxCell>
         <mxCell id="TstbxcchZz1pR3d-lyST-140" value="Тип залежності" style="swimlane;html=1;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#e0e0e0;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;align=center;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=14;swimlaneLine=1;" parent="1" vertex="1">
-          <mxGeometry x="670" y="-440" width="160" height="92" as="geometry" />
+          <mxGeometry x="720" y="-1140" width="160" height="92" as="geometry" />
         </mxCell>
         <mxCell id="TstbxcchZz1pR3d-lyST-141" value="Тип залежності id" style="shape=partialRectangle;top=0;left=0;right=0;bottom=1;html=1;align=left;verticalAlign=middle;fillColor=none;spacingLeft=34;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;dropTarget=0;fontStyle=5;" parent="TstbxcchZz1pR3d-lyST-140" vertex="1">
           <mxGeometry y="26" width="160" height="30" as="geometry" />
@@ -161,7 +161,7 @@
           <mxGeometry width="30" height="10" as="geometry" />
         </mxCell>
         <mxCell id="TstbxcchZz1pR3d-lyST-150" value="Тип відношення" style="swimlane;html=1;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#e0e0e0;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;align=center;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=14;swimlaneLine=1;" parent="1" vertex="1">
-          <mxGeometry x="480" y="-440" width="160" height="92" as="geometry" />
+          <mxGeometry x="530" y="-1140" width="160" height="92" as="geometry" />
         </mxCell>
         <mxCell id="TstbxcchZz1pR3d-lyST-151" value="Тип відношення id" style="shape=partialRectangle;top=0;left=0;right=0;bottom=1;html=1;align=left;verticalAlign=middle;fillColor=none;spacingLeft=34;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;dropTarget=0;fontStyle=5;" parent="TstbxcchZz1pR3d-lyST-150" vertex="1">
           <mxGeometry y="26" width="160" height="30" as="geometry" />
@@ -182,7 +182,7 @@
           <mxGeometry width="30" height="10" as="geometry" />
         </mxCell>
         <mxCell id="TstbxcchZz1pR3d-lyST-157" value="База пакунку" style="swimlane;html=1;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#e0e0e0;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;align=center;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=14;swimlaneLine=1;" parent="1" vertex="1">
-          <mxGeometry x="270" y="-700" width="160" height="170" as="geometry" />
+          <mxGeometry x="320" y="-1410" width="160" height="170" as="geometry" />
         </mxCell>
         <mxCell id="TstbxcchZz1pR3d-lyST-158" value="База пакунку id" style="shape=partialRectangle;top=0;left=0;right=0;bottom=1;html=1;align=left;verticalAlign=middle;fillColor=none;spacingLeft=34;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;dropTarget=0;fontStyle=5;" parent="TstbxcchZz1pR3d-lyST-157" vertex="1">
           <mxGeometry y="26" width="160" height="30" as="geometry" />
@@ -224,7 +224,7 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="TstbxcchZz1pR3d-lyST-171" value="Залежність" style="swimlane;html=1;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#e0e0e0;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;align=center;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=14;swimlaneLine=1;" parent="1" vertex="1">
-          <mxGeometry x="680" y="-630" width="150" height="180" as="geometry" />
+          <mxGeometry x="730" y="-1330" width="150" height="180" as="geometry" />
         </mxCell>
         <mxCell id="TstbxcchZz1pR3d-lyST-172" value="Залежність id" style="shape=partialRectangle;top=0;left=0;right=0;bottom=1;html=1;align=left;verticalAlign=middle;fillColor=none;spacingLeft=34;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;dropTarget=0;fontStyle=5;" parent="TstbxcchZz1pR3d-lyST-171" vertex="1">
           <mxGeometry y="26" width="150" height="30" as="geometry" />
@@ -257,7 +257,7 @@
           <mxGeometry width="30" height="46" as="geometry" />
         </mxCell>
         <mxCell id="TstbxcchZz1pR3d-lyST-188" value="Відношення" style="swimlane;html=1;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#e0e0e0;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;align=center;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=14;swimlaneLine=1;" parent="1" vertex="1">
-          <mxGeometry x="270" y="-502" width="160" height="154" as="geometry" />
+          <mxGeometry x="320" y="-1202" width="160" height="154" as="geometry" />
         </mxCell>
         <mxCell id="TstbxcchZz1pR3d-lyST-189" value="Відношення id" style="shape=partialRectangle;top=0;left=0;right=0;bottom=1;html=1;align=left;verticalAlign=middle;fillColor=none;spacingLeft=34;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;dropTarget=0;fontStyle=5;" parent="TstbxcchZz1pR3d-lyST-188" vertex="1">
           <mxGeometry y="26" width="160" height="30" as="geometry" />
@@ -285,10 +285,10 @@
         </mxCell>
         <mxCell id="TstbxcchZz1pR3d-lyST-206" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=ERmandOne;endFill=0;startArrow=ERzeroToMany;startFill=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="TstbxcchZz1pR3d-lyST-193" target="TstbxcchZz1pR3d-lyST-61" edge="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="480" y="-540" as="targetPoint" />
+            <mxPoint x="530" y="-1240" as="targetPoint" />
             <Array as="points">
-              <mxPoint x="460" y="-407" />
-              <mxPoint x="460" y="-507" />
+              <mxPoint x="510" y="-1107" />
+              <mxPoint x="510" y="-1207" />
             </Array>
           </mxGeometry>
         </mxCell>
@@ -298,8 +298,8 @@
         <mxCell id="TstbxcchZz1pR3d-lyST-208" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;endArrow=ERmandOne;endFill=0;startArrow=ERzeroToMany;startFill=0;" parent="1" source="TstbxcchZz1pR3d-lyST-178" target="TstbxcchZz1pR3d-lyST-143" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="650" y="-483" />
-              <mxPoint x="650" y="-371" />
+              <mxPoint x="700" y="-1183" />
+              <mxPoint x="700" y="-1071" />
             </Array>
           </mxGeometry>
         </mxCell>
@@ -308,16 +308,16 @@
         </mxCell>
         <mxCell id="TstbxcchZz1pR3d-lyST-212" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=ERmandOne;endFill=0;startArrow=ERzeroToMany;startFill=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="PkgUqFx-XmgoDWfw4lMe-12" target="TstbxcchZz1pR3d-lyST-119" edge="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="480" y="-790" as="sourcePoint" />
-            <mxPoint x="440" y="-760" as="targetPoint" />
+            <mxPoint x="530" y="-1490" as="sourcePoint" />
+            <mxPoint x="490" y="-1460" as="targetPoint" />
             <Array as="points">
-              <mxPoint x="450" y="-791" />
-              <mxPoint x="450" y="-771" />
+              <mxPoint x="500" y="-1491" />
+              <mxPoint x="500" y="-1471" />
             </Array>
           </mxGeometry>
         </mxCell>
         <mxCell id="PkgUqFx-XmgoDWfw4lMe-1" value="Роль" style="swimlane;html=1;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#e0e0e0;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;align=center;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=14;swimlaneLine=1;" parent="1" vertex="1">
-          <mxGeometry x="480" y="-860" width="160" height="82" as="geometry" />
+          <mxGeometry x="530" y="-1560" width="160" height="82" as="geometry" />
         </mxCell>
         <mxCell id="PkgUqFx-XmgoDWfw4lMe-2" value="Роль id" style="shape=partialRectangle;top=0;left=0;right=0;bottom=1;html=1;align=left;verticalAlign=middle;fillColor=none;spacingLeft=34;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;dropTarget=0;fontStyle=5;" parent="PkgUqFx-XmgoDWfw4lMe-1" vertex="1">
           <mxGeometry y="26" width="160" height="30" as="geometry" />
@@ -333,21 +333,21 @@
         </mxCell>
         <mxCell id="PkgUqFx-XmgoDWfw4lMe-16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;startArrow=ERmandOne;startFill=0;endArrow=ERzeroToMany;endFill=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" target="PkgUqFx-XmgoDWfw4lMe-12" edge="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="430" y="-640" as="sourcePoint" />
-            <mxPoint x="470" y="-750" as="targetPoint" />
+            <mxPoint x="480" y="-1340" as="sourcePoint" />
+            <mxPoint x="520" y="-1450" as="targetPoint" />
             <Array as="points">
-              <mxPoint x="460" y="-640" />
-              <mxPoint x="460" y="-791" />
+              <mxPoint x="510" y="-1340" />
+              <mxPoint x="510" y="-1491" />
             </Array>
           </mxGeometry>
         </mxCell>
         <mxCell id="PkgUqFx-XmgoDWfw4lMe-17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=ERmandOne;endFill=0;startArrow=ERzeroToMany;startFill=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="PkgUqFx-XmgoDWfw4lMe-12" target="TstbxcchZz1pR3d-lyST-77" edge="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="690" y="-770" as="targetPoint" />
-            <mxPoint x="640" y="-813" as="sourcePoint" />
+            <mxPoint x="740" y="-1470" as="targetPoint" />
+            <mxPoint x="690" y="-1513" as="sourcePoint" />
             <Array as="points">
-              <mxPoint x="660" y="-791" />
-              <mxPoint x="660" y="-739" />
+              <mxPoint x="710" y="-1491" />
+              <mxPoint x="710" y="-1439" />
             </Array>
           </mxGeometry>
         </mxCell>
