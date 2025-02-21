@@ -82,22 +82,452 @@
   ],
 ) //}}}
 
-#let appendices = /*{{{*/ (
-  /*(
-    title: "Приклад звіту 1",
-    content: [test],
-  ),
-  (
-    title: "Приклад звіту 2",
-    content: [test],
-  ),
-  (
-    title: "Приклад звіту 3",
-    content: [test],
-  ),*/
-) //}}}
+#let appendices = [
+  = Код пошукового процесу //{{{1
+  #v(-spacing)
+  == Код формування та надсилання запиту пошуку до бази даних <code_database_search> //{{{2
+  ```
+  async fn search(connection: &E, data: Data) -> Result<Vec<Entry>> {
+      let mut builder = QueryBuilder::new(
+          "SELECT \
+              p.id, p.name, p.version, p.url, p.description, \
+              p.updated_at, p.created_at, \
+              pb.id AS base_id, pb.name AS base_name, \
+          ( \
+              SELECT COUNT(DISTINCT pbur.user) \
+              FROM PackageBaseUserRoles pbur \
+              WHERE pbur.base = pb.id AND pbur.role = 3 \
+          ) AS maintainers_num \
+          FROM \
+              Packages p \
+          JOIN \
+              PackageBases pb ON p.base = pb.id ",
+      );
 
-#show: /*{{{*/ cw-template.with(
+      let mut push_search = |cond, param| {
+          builder.push(format_args!(
+              " {cond} {param} {} ",
+              if data.exact { "=" } else { "LIKE" }
+          ));
+          builder.push_bind(if data.exact {
+              data.search.to_string()
+          } else {
+              format!("%{}%", data.search.as_str())
+          });
+      };
+
+      let join_user = " JOIN PackageBaseUserRoles pbur ON pb.id = pbur.base \
+              JOIN Users u ON pbur.user = u.id WHERE ";
+
+      match data.mode {
+          Mode::Url => push_search("WHERE", "p.url"),
+          Mode::Name => push_search("WHERE", "p.name"),
+          Mode::PackageBase => push_search("WHERE", "pb.name"),
+          Mode::Description => push_search("WHERE", "p.description"),
+          Mode::BaseDescription => push_search("WHERE", "pb.description"),
+          Mode::NameAndDescription => {
+              // WHERE (p.name LIKE '%search_term%' OR p.description LIKE '%search_term%')
+              builder.push(" WHERE p.name LIKE ");
+              builder.push_bind(format!("%{}%", data.search.as_str()));
+              builder.push(" OR p.description LIKE ");
+              builder.push_bind(format!("%{}%", data.search.as_str()));
+          }
+          Mode::User => {
+              push_search(
+                  "WHERE EXISTS ( \
+                  SELECT 1 \
+                  FROM PackageBaseUserRoles pbur \
+                  JOIN Users u ON pbur.user = u.id \
+                  WHERE pbur.base = pb.id AND",
+                  "u.name",
+              );
+              builder.push(" ) ");
+          }
+          Mode::Flagger => {
+              push_search(join_user, "u.name");
+              builder.push(" AND pbur.role = 4 ");
+          } // 4
+          Mode::Packager => {
+              push_search(join_user, "u.name");
+              builder.push(" AND pbur.role = 2 ");
+          } // 2
+          Mode::Submitter => {
+              push_search(join_user, "u.name");
+              builder.push(" AND pbur.role = 1 ");
+          } // 1
+          Mode::Maintainer => {
+              push_search(join_user, "u.name");
+              builder.push(" AND pbur.role = 3 ");
+          } // 3
+      }
+
+      builder.push(format_args!(
+          " ORDER BY {} {} LIMIT {};",
+          match data.order {
+              Order::Name => "p.name",
+              Order::Version => "p.version",
+              Order::BaseName => "pb.name",
+              Order::UpdatedAt => "p.updated_at",
+              Order::CreatedAt => "p.created_at",
+          },
+          if data.ascending { "ASC" } else { "DESC" },
+          data.limit
+      ));
+
+      let mut entries = Vec::new();
+
+      let mut rows = builder.build().fetch(connection);
+      while let Some(row) = rows.try_next().await? {
+          entries.push(Entry {
+              id: row.try_get("id")?,
+              name: row.try_get("name")?,
+              version: row.try_get("version")?,
+              base_id: row.try_get("base_id")?,
+              base_name: row.try_get("base_name")?,
+              url: row.try_get("url")?,
+              description: row.try_get("description")?,
+              // submitter_id: row.try_get("submitter_id")?,
+              // submitter_name: row.try_get("submitter_name")?,
+              updated_at: row.try_get("updated_at")?,
+              created_at: row.try_get("created_at")?,
+          });
+      }
+
+      Ok(entries)
+  }
+  ```
+
+  == Код відображення зчитаних результатів пошуку у вигляді таблиці <code_search_table> //{{{2
+  ```
+  pub fn view(&self) -> Element<'static, Message> {
+      let mut table: Vec<_> = [
+          "Package",      // 0
+          "Version",      // 1
+          "Base",         // 2
+          "URL",          // 3
+          "Description",  // 4
+          "Last Updated", // 5
+          "Created",      // 6
+      ]
+      .into_iter()
+      .map(|s| { let mut v = Vec::with_capacity(self.0.len());
+          v.push(s.into());
+          v.push("".into());
+          v }).collect();
+
+      for entry in &self.0 {
+          table[0].push(url(&entry.name, Message::PackagePressed(entry.id)));
+          table[1].push(text(entry.version.to_string()).into());
+          table[2].push(url(&entry.base_name, Message::BasePressed(entry.base_id)));
+          table[3].push(
+              entry.url.as_ref().map_or("-".into(), |s|
+                  tip(
+                      url(&"link", Message::URLPressed(s.clone())),
+                      s.clone(),
+                      tip::Position::Bottom,
+                  ),
+                ),
+          );
+          table[4].push(text(entry.description.to_string()).into());
+          table[5].push(text(entry.updated_at.to_string()).into());
+          table[6].push(text(entry.created_at.to_string()).into());
+          // table[5].push(Element::from(column( entry .maintainers .iter() .map(|(id, s)| url(s, Message::UserPressed(*id))),)));
+      }
+
+      scroll(
+          row(table
+              .into_iter()
+              .map(|v| Column::from_vec(v).spacing(5).into()))
+          .spacing(20)
+          .padding(30),
+      )
+  }
+  ```
+
+  = SQL запити статистик <code_sql_statistics> //{{{1
+  #v(-spacing)
+  == Статистика користувачів //{{{2
+  Статистика користувачів репозиторію складається з наступної інформації:
+  - "total_users" -- загальна кількість користувачів;
+  - "active_users" -- кількість активних користувачів;
+  - "never_used_accounts" -- кількість користувачів які ніколи не заходили в систему;
+  - "inactive_users" -- кількість користувачів, які ніколи не використовувалися більше року;
+  - "new_users_past_week" -- кількість нових користувачів за останній тиждень;
+  - "new_users_past_year" -- кількість нових користувачів за останній рік;
+  - "maintainers_count" -- кількість користувачів, які є супровідниками принаймні одного пакунка;
+  - "submitters_count" -- кількість користувачів, які є авторами принаймні одного пакунка;
+  - "packagers_count" -- кількість користувачів, які є пакувальниками принаймні одного пакунка;
+  - "flaggers_count" -- кількість користувачів, які позначили принаймні один пакунок.
+
+  Наступний SQL запит забезпечує отримання цієї інформації:
+  ```
+    WITH user_stats AS (
+    SELECT
+      COUNT(*) AS total_users,
+      COUNT(
+        CASE WHEN last_used IS NOT NULL
+        AND last_used <= updated_at - INTERVAL '1' YEAR THEN 1 END
+      ) AS inactive_users,
+      COUNT(
+        CASE WHEN last_used IS NULL THEN 1 END
+      ) AS never_used_accounts,
+      COUNT(
+        CASE WHEN created_at >= CURRENT_TIMESTAMP - INTERVAL '7' DAY THEN 1 END
+      ) AS new_users_past_week,
+      COUNT(
+        CASE WHEN created_at >= CURRENT_TIMESTAMP - INTERVAL '1' YEAR THEN 1 END
+      ) AS new_users_past_year
+    FROM
+      Users
+  ),
+  role_counts AS (
+    SELECT
+      user,
+      COUNT(CASE WHEN role = 3 THEN 1 END) AS maintainer_count,
+      COUNT(CASE WHEN role = 1 THEN 1 END) AS submitter_count,
+      COUNT(CASE WHEN role = 2 THEN 1 END) AS packager_count,
+      COUNT(CASE WHEN role = 4 THEN 1 END) AS flagger_count
+    FROM
+      PackageBaseUserRoles
+    GROUP BY
+      user
+  )
+  SELECT
+    us.total_users,
+    us.inactive_users,
+    us.never_used_accounts,
+    (
+      us.total_users - us.inactive_users - us.never_used_accounts
+    ) AS active_users,
+    us.new_users_past_week,
+    us.new_users_past_year,
+    (
+      SELECT
+        COUNT(*)
+      FROM
+        role_counts
+      WHERE
+        maintainer_count > 0
+    ) AS maintainers_count,
+    (
+      SELECT
+        COUNT(*)
+      FROM
+        role_counts
+      WHERE
+        submitter_count > 0
+    ) AS submitters_count,
+    (
+      SELECT
+        COUNT(*)
+      FROM
+        role_counts
+      WHERE
+        packager_count > 0
+    ) AS packagers_count,
+    (
+      SELECT
+        COUNT(*)
+      FROM
+        role_counts
+      WHERE
+        flagger_count > 0
+    ) AS flaggers_count
+  FROM
+    user_stats us;
+  ```
+
+  == Статистика пакунків //{{{2
+  Статистика баз пакунків та пакунків репозиторію складається з наступної інформації:
+  - "total_package_bases" -- загальна кількість баз пакунків;
+  - "orphaned_package_bases" -- кількість осиротілих баз пакунків (вони не мають ні авторів, ні супроводжуючих);
+  - "semi_orphaned_package_bases" -- кількість напівпокинутих баз пакунків (відправники та супровідники неактивні більше року);
+  - "never_updated_package_bases" -- кількість ніколи не оновлюваних баз пакунків;
+  - "flagged_package_bases" -- кількість позначених баз пакунків;
+  - "total_packages" -- загальна кількість пакунків;
+  - "orphaned_packages" -- кількість осиротілих пакунків (пакунків, які мають осиротілу базу);
+  - "semi_orphaned_packages" -- кількість наполовину покинутих пакунків (пакунків, які мають напівпокинуту базу);
+  - "never_updated_packages" -- кількість ніколи не оновлюваних пакунків;
+  - "flagged_packages" -- кількість позначених пакунків;
+  - "packages_without_dependencies" -- кількість пакунків які не мають залежностей;
+  - "unique_broken_dependencies" -- кількість унікальних зламаних залежностей (пакунок залежить від назви пакунку, але жоден пакунок не постачає цю назву).
+
+  Наступний SQL запит забезпечує отримання цієї інформації:
+  ```
+    WITH base_stats AS (
+    SELECT
+      pb.id AS base_id,
+      pb.created_at = pb.updated_at AS never_updated,
+      -- true if package base was never updated after creation
+      EXISTS (
+        SELECT
+          1
+        FROM
+          PackageBaseUserRoles pbur
+        WHERE
+          pbur.base = pb.id
+          AND pbur.role IN (1, 3) -- at least one submitter (1) or maintainer (3)
+          ) AS has_owners,
+      EXISTS (
+        SELECT
+          1
+        FROM
+          PackageBaseUserRoles pbur
+          JOIN Users u ON u.id = pbur.user
+        WHERE
+          pbur.base = pb.id
+          AND pbur.role IN (1, 3) -- submitter or maintainer
+          AND u.last_used > NOW() - INTERVAL '1' YEAR -- have been active in the last year
+          ) AS has_active_owners,
+      EXISTS (
+        SELECT
+          1
+        FROM
+          PackageBaseUserRoles pbur
+        WHERE
+          pbur.base = pb.id
+          AND pbur.role = 4 -- at least one flagger
+          ) AS has_flagger
+    FROM
+      PackageBases pb
+  ),
+  package_stats AS (
+    SELECT
+      p.id AS package_id,
+      p.base AS base_id,
+      p.created_at = p.updated_at AS never_updated,
+      -- true if package was never updated after creation
+      p.flagged_at IS NOT NULL AS is_flagged,
+      -- package is flagged
+      NOT EXISTS (
+        SELECT
+          1
+        FROM
+          PackageDependencies pd
+        WHERE
+          pd.package = p.id
+          AND pd.dependency_type IN (1, 2) -- only count critical missing dependencies (depends, makedepends)
+          ) AS no_dependencies
+    FROM
+      Packages p
+  ),
+  broken_dependencies AS (
+    SELECT
+      pd.dependency_package_name
+    FROM
+      PackageDependencies pd
+    WHERE
+      NOT EXISTS (
+        SELECT
+          1
+        FROM
+          PackageRelations pr
+        WHERE
+          pr.relation_type = 2 -- "provides" relation
+          AND pr.relation_package_name = pd.dependency_package_name -- at least one package "provides" the dependency
+          )
+    GROUP BY
+      pd.dependency_package_name -- count unique broken dependencies
+      )
+  SELECT
+    (
+      SELECT
+        COUNT(*)
+      FROM
+        PackageBases
+    ) AS total_package_bases,
+    -- orphaned package bases with no submitters or maintainers
+    SUM(
+      CASE WHEN NOT has_owners THEN 1 ELSE 0 END
+    ) AS orphaned_package_bases,
+    -- semi-orphaned bases have only inactive submitters and maintainers
+    SUM(
+      CASE WHEN has_owners
+      AND NOT has_active_owners THEN 1 ELSE 0 END
+    ) AS semi_orphaned_package_bases,
+    -- only count package bases that still have packages to avoid counting inactive bases
+    SUM(
+      CASE WHEN never_updated
+      AND base_id IN (
+        SELECT
+          DISTINCT base
+        FROM
+          Packages
+      ) THEN 1 ELSE 0 END
+    ) AS never_updated_package_bases,
+    -- package bases with at least one flagger
+    SUM(
+      CASE WHEN has_flagger THEN 1 ELSE 0 END
+    ) AS flagged_package_bases,
+    (
+      SELECT
+        COUNT(*)
+      FROM
+        Packages
+    ) AS total_packages,
+    -- orphaned packages are those whose base is orphaned
+    SUM(
+      CASE WHEN base_id IN (
+        SELECT
+          base_id
+        FROM
+          base_stats
+        WHERE
+          NOT has_owners
+      ) THEN 1 ELSE 0 END
+    ) AS orphaned_packages,
+    -- semi-orphaned packages belong to semi-orphaned bases
+    SUM(
+      CASE WHEN base_id IN (
+        SELECT
+          base_id
+        FROM
+          base_stats
+        WHERE
+          has_owners
+          AND NOT has_active_owners
+      ) THEN 1 ELSE 0 END
+    ) AS semi_orphaned_packages,
+    -- count unique packages that were never updated
+    (
+      SELECT
+        COUNT(DISTINCT package_id)
+      FROM
+        package_stats
+      WHERE
+        never_updated
+    ) AS never_updated_packages,
+    -- count unique flagged packages
+    (
+      SELECT
+        COUNT(DISTINCT package_id)
+      FROM
+        package_stats
+      WHERE
+        is_flagged
+    ) AS flagged_packages,
+    -- count packages that have no required dependencies
+    (
+      SELECT
+        COUNT(*)
+      FROM
+        package_stats
+      WHERE
+        no_dependencies
+    ) AS packages_without_dependencies,
+    -- count unique broken dependencies (dependency exists but no package provides it)
+    (
+      SELECT
+        COUNT(*)
+      FROM
+        broken_dependencies
+    ) AS unique_broken_dependencies
+  FROM
+    base_stats;
+  ```
+] //{{{1 }}}
+
+#show: /*{{{1*/ cw-template.with(
   title: [Інформаційна система "Репозиторій пакунків". Колаборація над пакунками],
   subject_shorthand: "БД",
   department_gen: "Програмної інженерії",
@@ -109,7 +539,7 @@
   abstract: abstract,
   bib_path: "bibl.yml",
   appendices: appendices,
-) //}}}
+)
 
 #nheading("Вступ") //{{{1
 У сучасному світі існують мільйони пакунків з програмним забезпеченням, програмними бібліотеками та іншою інформацією.
@@ -908,7 +1338,7 @@ CREATE TABLE PackageRelations (
 
 #img("img/repo/search.png", "Сторінка пошуку")
 
-Розглянемо на прикладі сторінки пошуку обробку запиту на основі даних з графічного інтерфейсу котрі ввів користувач.
+Розглянемо на прикладі сторінки пошуку обробку запиту на основі даних котрі ввів користувач у графічний інтерфейс.
 
 Коли користувач натискає кнопку "Go", або натискає клавішу "Enter" у текстовому полі пошуку, генерується внутрішнє повідомлення "Search". Обробник повідомлень сторінки пошуку отримує це повідомлення, та починає перевірку даних текстового поля та створення структури даних з параметрами пошуку. Після чого, якщо на момент запиту не виконується інших пошукових запитів, дані з параметрами пошуку передаються до сервісу пошуку. Сервіс передає дані до адаптеру репозиторію пошуку. Адаптер репозиторію пошуку встановлює з'єднання до бази даних, і робить запит до адаптеру репозиторію пошуку бази даних з встановленим з'єднанням, після чого він закриє з'єднання до бази даних. Адаптер репозиторію пошуку бази даних використовує передане йому підключення для виконання комплексного SQL запиту який будується на основі переданих йому параметрів пошуку. Після отримання результату з бази даних, він конвертує його у набір записів інформації про пакунок. Цей набір записів буде переданий назад до адаптеру репозиторію пошуку, потім до сервісу, й у кінці передається у повідомленні "RequestResult" до сторінки пошуку, яка зможе відобразити кожен запис як рядок у таблиці.
 
@@ -963,119 +1393,81 @@ async fn search(&self, data: Data) -> Result<Vec<Entry>> {
 }
 ```
 
-У шарі взаємодії з базою даних функція пошуку, на основі отриманих даних, будує комплексний динамічний запит та надсилає його використовуючи отримане з репозиторію пошуку підключення до сховища даних:
+У шарі взаємодії з базою даних функція пошуку, на основі отриманих даних, будує комплексний динамічний запит та надсилає його використовуючи отримане з репозиторію пошуку підключення до сховища даних (код формування відповідного запиту наведено в лістингу #link(<code_database_search>)[А.1]).
+
+Якщо виконати пошук пакунку за частковою назвою пакунку "core", відсортований в низхідному порядку за датою останнього оновлення, з лімітом у 75 результатів, то до бази даних буде побудований і відправлений наступний запит:
 ```
-async fn search(connection: &E, data: Data) -> Result<Vec<Entry>> {
-    let mut builder = QueryBuilder::new(
-        "SELECT \
-            p.id, p.name, p.version, p.url, p.description, \
-            p.updated_at, p.created_at, \
-            pb.id AS base_id, pb.name AS base_name, \
-        ( \
-            SELECT COUNT(DISTINCT pbur.user) \
-            FROM PackageBaseUserRoles pbur \
-            WHERE pbur.base = pb.id AND pbur.role = 3 \
-        ) AS maintainers_num \
-        FROM \
-            Packages p \
-        JOIN \
-            PackageBases pb ON p.base = pb.id ",
-    );
-
-    let mut push_search = |cond, param| {
-        builder.push(format_args!(
-            " {cond} {param} {} ",
-            if data.exact { "=" } else { "LIKE" }
-        ));
-        builder.push_bind(if data.exact {
-            data.search.to_string()
-        } else {
-            format!("%{}%", data.search.as_str())
-        });
-    };
-
-    let join_user = " JOIN PackageBaseUserRoles pbur ON pb.id = pbur.base \
-            JOIN Users u ON pbur.user = u.id WHERE ";
-
-    match data.mode {
-        Mode::Url => push_search("WHERE", "p.url"),
-        Mode::Name => push_search("WHERE", "p.name"),
-        Mode::PackageBase => push_search("WHERE", "pb.name"),
-        Mode::Description => push_search("WHERE", "p.description"),
-        Mode::BaseDescription => push_search("WHERE", "pb.description"),
-        Mode::NameAndDescription => {
-            // WHERE (p.name LIKE '%search_term%' OR p.description LIKE '%search_term%')
-            builder.push(" WHERE p.name LIKE ");
-            builder.push_bind(format!("%{}%", data.search.as_str()));
-            builder.push(" OR p.description LIKE ");
-            builder.push_bind(format!("%{}%", data.search.as_str()));
-        }
-        Mode::User => {
-            push_search(
-                "WHERE EXISTS ( \
-                SELECT 1 \
-                FROM PackageBaseUserRoles pbur \
-                JOIN Users u ON pbur.user = u.id \
-                WHERE pbur.base = pb.id AND",
-                "u.name",
-            );
-            builder.push(" ) ");
-        }
-        Mode::Flagger => {
-            push_search(join_user, "u.name");
-            builder.push(" AND pbur.role = 4 ");
-        } // 4
-        Mode::Packager => {
-            push_search(join_user, "u.name");
-            builder.push(" AND pbur.role = 2 ");
-        } // 2
-        Mode::Submitter => {
-            push_search(join_user, "u.name");
-            builder.push(" AND pbur.role = 1 ");
-        } // 1
-        Mode::Maintainer => {
-            push_search(join_user, "u.name");
-            builder.push(" AND pbur.role = 3 ");
-        } // 3
-    }
-
-    builder.push(format_args!(
-        " ORDER BY {} {} LIMIT {};",
-        match data.order {
-            Order::Name => "p.name",
-            Order::Version => "p.version",
-            Order::BaseName => "pb.name",
-            Order::UpdatedAt => "p.updated_at",
-            Order::CreatedAt => "p.created_at",
-        },
-        if data.ascending { "ASC" } else { "DESC" },
-        data.limit
-    ));
-
-    let mut entries = Vec::new();
-
-    let mut rows = builder.build().fetch(connection);
-    while let Some(row) = rows.try_next().await? {
-        entries.push(Entry {
-            id: row.try_get("id")?,
-            name: row.try_get("name")?,
-            version: row.try_get("version")?,
-            base_id: row.try_get("base_id")?,
-            base_name: row.try_get("base_name")?,
-            url: row.try_get("url")?,
-            description: row.try_get("description")?,
-            // submitter_id: row.try_get("submitter_id")?,
-            // submitter_name: row.try_get("submitter_name")?,
-            updated_at: row.try_get("updated_at")?,
-            created_at: row.try_get("created_at")?,
-        });
-    }
-
-    Ok(entries)
-}
+SELECT
+  p.id,
+  p.name,
+  p.version,
+  p.url,
+  p.description,
+  p.updated_at,
+  p.created_at,
+  pb.id AS base_id,
+  pb.name AS base_name,
+  (
+    SELECT
+      COUNT(DISTINCT pbur.user)
+    FROM
+      PackageBaseUserRoles pbur
+    WHERE
+      pbur.base = pb.id
+      AND pbur.role = 3
+  ) AS maintainers_num
+FROM
+  Packages p
+  JOIN PackageBases pb ON p.base = pb.id
+WHERE
+  p.name LIKE ?
+ORDER BY
+  p.updated_at DESC
+LIMIT
+  75;
 ```
 
-Після чого результат приходить у вигляді повідомлення "RequestResult" яке оброблюється в шарі графічного інтерфейсу:
+Якщо виконати пошук пакунку за повним юзернеймом користувача "alice", відсортований у висхідному порядку за часом створення, з лімітом у 25 результатів, то до бази даних буде побудований і відправлений наступний запит:```
+SELECT
+  p.id,
+  p.name,
+  p.version,
+  p.url,
+  p.description,
+  p.updated_at,
+  p.created_at,
+  pb.id AS base_id,
+  pb.name AS base_name,
+  (
+    SELECT
+      COUNT(DISTINCT pbur.user)
+    FROM
+      PackageBaseUserRoles pbur
+    WHERE
+      pbur.base = pb.id
+      AND pbur.role = 3
+  ) AS maintainers_num
+FROM
+  Packages p
+  JOIN PackageBases pb ON p.base = pb.id
+WHERE
+  EXISTS (
+    SELECT
+      1
+    FROM
+      PackageBaseUserRoles pbur
+      JOIN Users u ON pbur.user = u.id
+    WHERE
+      pbur.base = pb.id
+      AND u.name = ?
+  )
+ORDER BY
+  p.created_at ASC
+LIMIT
+  25;
+```
+
+Отриманий результат пошуку приходить у вигляді повідомлення "RequestResult" яке оброблюється в шарі графічного інтерфейсу:
 ```
 Message::RequestResult(r) => match &*r {
     Ok(v) => self.state = State::Table(Table(v.clone())),
@@ -1083,62 +1475,35 @@ Message::RequestResult(r) => match &*r {
 },
 ```
 
-Після отриманого результату пошуку, він буде відображений у вигляді таблиці:
-```
-pub fn view(&self) -> Element<'static, Message> {
-    let mut table: Vec<_> = [
-        "Package",      // 0
-        "Version",      // 1
-        "Base",         // 2
-        "URL",          // 3
-        "Description",  // 4
-        "Last Updated", // 5
-        "Created",      // 6
-    ]
-    .into_iter()
-    .map(|s| {
-        let mut v = Vec::with_capacity(self.0.len());
-        v.push(s.into());
-        v.push("".into());
-        v
-    })
-    .collect();
-
-    for entry in &self.0 {
-        table[0].push(url(&entry.name, Message::PackagePressed(entry.id)));
-        table[1].push(text(entry.version.to_string()).into());
-        table[2].push(url(&entry.base_name, Message::BasePressed(entry.base_id)));
-        table[3].push(
-            entry
-                .url
-                .as_ref()
-                .map_or("-".into(), |s|
-
-                tip(
-                    url(&"link", Message::URLPressed(s.clone())),
-                    s.clone(),
-                    tip::Position::Bottom,
-                ),
-
-                ),
-        );
-        table[4].push(text(entry.description.to_string()).into());
-        table[5].push(text(entry.updated_at.to_string()).into());
-        table[6].push(text(entry.created_at.to_string()).into());
-        // table[5].push(Element::from(column( entry .maintainers .iter() .map(|(id, s)| url(s, Message::UserPressed(*id))),)));
-    }
-
-    scroll(
-        row(table
-            .into_iter()
-            .map(|v| Column::from_vec(v).spacing(5).into()))
-        .spacing(20)
-        .padding(30),
-    )
-}
-```
+Після отриманого результату пошуку, він буде відображений у вигляді таблиці (код формування таблиці наведено в лістингу #link(<code_search_table>)[А.2]).
 
 Подібну реалізацію мають всі частини програми. Представлений програмний код демонструє ефективну реалізацію принципів гексагональної архітектури @hexagonal. Структура коду чітко відображає розділення на рівні, кожен з яких відповідає за визначену функціональну роль, що є ключовою характеристикою даної архітектурної парадигми. Цей підхід надає чітке розмежування відповідальності де кожен компонент системи, від інтерфейсу користувача до адаптерів баз даних, має чітко визначений набір обов'язків. Це полегшує процес розробки та спрощує підтримку програмного забезпечення у довгостроковій перспективі. Незалежність бізнес-логіки від інфраструктурних рішень дозволяє спростити процес міграції до простого доповнення арсеналу адаптерів. Сервісний шар, що містить основну бізнес-логіку пошуку, не залежить від конкретних технологій зберігання даних або реалізації графічного інтерфейсу, тому його можна буде використати в інших проектах. Крім того, модульна архітектура дозволяє проводити ізольоване тестування кожного компонента, за допомогою використання макетів (mock objects) для залежностей що забезпечить глибоке покриття коду тестами.
+
+Комп'ютерна програма імплементує отримання наступних статистик (SQL запити цих статистик наведено в #link(<code_sql_statistics>)[додатку Б]):
++ статистика облікових записів:
+  + загальна кількість користувачів;
+  + кількість активних користувачів;
+  + кількість користувачів які ніколи не заходили в систему;
+  + кількість користувачів, які ніколи не використовувалися більше року;
+  + кількість нових користувачів за останній тиждень;
+  + кількість нових користувачів за останній рік;
+  + кількість користувачів, які є супровідниками принаймні одного пакунка;
+  + кількість користувачів, які є авторами принаймні одного пакунка;
+  + кількість користувачів, які є пакувальниками принаймні одного пакунка;
+  + кількість користувачів, які позначили принаймні один пакунок.
++ статистика баз пакунків та пакунків репозиторію:
+  + загальна кількість баз пакунків;
+  + кількість осиротілих баз пакунків (вони не мають ні авторів, ні супроводжуючих);
+  + кількість напівпокинутих баз пакунків (відправники та супровідники неактивні більше року);
+  + кількість ніколи не оновлюваних баз пакунків;
+  + кількість позначених баз пакунків;
+  + загальна кількість пакунків;
+  + кількість осиротілих пакунків (пакунків, які мають осиротілу базу);
+  + кількість наполовину покинутих пакунків (пакунків, які мають напівпокинуту базу);
+  + кількість ніколи не оновлюваних пакунків;
+  + кількість позначених пакунків;
+  + кількість пакунків які не мають залежностей;
+  + кількість унікальних зламаних залежностей (пакунок залежить від назви пакунку, але жоден пакунок не постачає цю назву).
 
 #nheading("Висновки") //{{{1
 
