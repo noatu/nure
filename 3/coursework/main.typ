@@ -83,6 +83,204 @@
 ) //}}}
 
 #let appendices = [
+  = SQL запити отримання інформації //{{{1
+  /*#v(-spacing)*/
+  == Інформація пакунку <code_sql_package> //{{{2
+  Інформація пакунку в репозиторії складається з наступної інформації:
+  - "package_name" -- назва пакунку;
+  - "package_version" -- версія пакунку;
+  - "package_url" -- веб-покликання на ресурс пакунку;
+  - "package_description" -- опис пакунку;
+  - "base_id" -- ідентифікатор бази пакунку;
+  - "base_name" -- назва бази пакунку;
+  - "base_description" -- опис бази пакунку;
+  - "flagged_at" -- час помітки пакунку;
+  - "updated_at" -- час оновлення пакунку;
+  - "created_at" -- час створення пакунку;
+  - "depends_aliases" -- назви пакунків від котрих залежить пакунок;
+  - "makedepends_aliases" -- назви пакунків від котрих пакунок залежить під час збірки;
+  - "optdepends_aliases" -- назви пакунків від котрих пакунок опціонально залежить;
+  - "replaces_aliases" -- назви пакунків котрі поточний пакунок замінює;
+  - "provides_aliases" -- назви пакунків котрі поточний пакунок постачає;
+  - "conflicts_aliases" -- назви пакунків з котрими пакунок конфліктує.
+
+  Наступний SQL запит забезпечує отримання цієї інформації:
+  ```
+    -- fetch package once
+    WITH selected_package AS (
+    SELECT
+      *
+    FROM
+      Packages
+    WHERE
+      id = ?
+      ),
+  dependency_aliases AS (
+    SELECT
+      pd.package,
+      pd.dependency_type,
+      pd.dependency_package_name AS alias
+    FROM
+      PackageDependencies pd
+    WHERE
+      pd.package = (
+        SELECT
+          id -- from CTE
+        FROM
+          selected_package
+      )
+      ),
+  relation_aliases AS (
+    SELECT
+      pr.package,
+      pr.relation_type,
+      pr.relation_package_name AS alias
+    FROM
+      PackageRelations pr
+    WHERE
+      pr.package = (
+        SELECT
+          id -- from CTE
+        FROM
+          selected_package
+      )
+      )
+  SELECT
+    -- package
+    sp.name AS package_name,
+    sp.version AS package_version,
+    sp.url AS package_url,
+    sp.description AS package_description,
+    sp.base AS base_id,
+    -- timestamps
+    sp.flagged_at,
+    sp.updated_at,
+    sp.created_at,
+    -- package base
+    pb.name AS base_name,
+    pb.description AS base_description,
+
+    -- deps
+    GROUP_CONCAT(
+      CASE WHEN da.dependency_type = 1 THEN da.alias END
+    ) AS depends_aliases,
+    GROUP_CONCAT(
+      CASE WHEN da.dependency_type = 2 THEN da.alias END
+    ) AS makedepends_aliases,
+    GROUP_CONCAT(
+      CASE WHEN da.dependency_type = 4 THEN da.alias END
+    ) AS optdepends_aliases,
+
+    -- relations
+    GROUP_CONCAT(
+      CASE WHEN ra.relation_type = 3 THEN ra.alias END
+    ) AS replaces_aliases,
+    -- replaces
+    GROUP_CONCAT(
+      CASE WHEN ra.relation_type = 2 THEN ra.alias END
+    ) AS provides_aliases,
+    -- provides
+    GROUP_CONCAT(
+      CASE WHEN ra.relation_type = 1 THEN ra.alias END
+    ) AS conflicts_aliases -- conflicts
+  FROM
+    selected_package sp
+    JOIN PackageBases pb ON sp.base = pb.id
+    LEFT JOIN dependency_aliases da ON sp.id = da.package
+    LEFT JOIN relation_aliases ra ON sp.id = ra.package -- all nonaggregated fields
+  GROUP BY
+    sp.name, sp.version, sp.url, sp.description, sp.base, pb.name, pb.description, sp.flagged_at, sp.updated_at, sp.created_at;
+  ```
+
+  == Інформація бази пакунку <code_sql_base> //{{{2
+  Інформація бази пакунку в репозиторії складається з наступної інформації:
+  - "package_base_name" -- ім'я бази пакунка;
+  - "package_base_description" -- базовий опис бази пакунку;
+  - "submitters" -- ідентифікатори та юзернейми користувачів, які мають роль автора;
+  - "maintainers" -- ідентифікатори та юзернейми користувачів, які мають роль супроводжуючого;
+  - "packagers" -- ідентифікатори та юзернейми користувачів, які мають роль пакувальника;
+  - "packages" -- ідентифікатори та назви пакунків, які мають цю базу пакунків;
+
+    Наступний SQL запит забезпечує отримання цієї інформації:
+
+    ```
+    -- fetch package base once
+    WITH selected_base AS (
+      SELECT
+        *
+      FROM
+        PackageBases
+      WHERE
+        id = ?
+        ),
+    -- preaggregate user roles
+    user_roles AS (
+      SELECT
+        pbur.base,
+        pbur.role,
+        GROUP_CONCAT(
+          CONCAT(pbur.user, ':', u.name)
+        ) AS users
+      FROM
+        PackageBaseUserRoles pbur
+        JOIN Users u ON pbur.user = u.id
+      WHERE
+        pbur.base = (
+          SELECT
+            id
+          FROM
+            selected_base
+        )
+    -- avoid duplication
+      GROUP BY
+        pbur.base,
+        pbur.role
+        ),
+    -- preaggregate package info
+    package_info AS (
+      SELECT
+        p.base,
+        GROUP_CONCAT(
+          CONCAT(p.id, ':', p.name)
+        ) AS packages
+      FROM
+        Packages p
+      WHERE
+        p.base = (
+          SELECT
+            id
+          FROM
+            selected_base
+        )
+    -- avoid duplication
+      GROUP BY
+        p.base
+        )
+    SELECT
+      sb.name AS package_base_name,
+      sb.description AS package_base_description,
+      -- extract user roles
+      MAX(
+        CASE WHEN ur.role = 1 THEN ur.users END
+      ) AS submitters,
+      MAX(
+        CASE WHEN ur.role = 3 THEN ur.users END
+      ) AS maintainers,
+      MAX(
+        CASE WHEN ur.role = 2 THEN ur.users END
+      ) AS packagers,
+
+      -- extract packages
+      MAX(pi.packages) AS packages
+    FROM
+      selected_base sb
+      LEFT JOIN user_roles ur ON sb.id = ur.base
+      LEFT JOIN package_info pi ON sb.id = pi.base
+    -- needed for aggregation functions
+    GROUP BY
+      sb.name, sb.description;
+    ```
+
   = Код пошукового процесу //{{{1
   #v(-spacing)
   == Код формування та надсилання запиту пошуку до бази даних <code_database_search> //{{{2
@@ -98,10 +296,8 @@
               FROM PackageBaseUserRoles pbur \
               WHERE pbur.base = pb.id AND pbur.role = 3 \
           ) AS maintainers_num \
-          FROM \
-              Packages p \
-          JOIN \
-              PackageBases pb ON p.base = pb.id ",
+          FROM Packages p \
+          JOIN PackageBases pb ON p.base = pb.id ",
       );
 
       let mut push_search = |cond, param| {
@@ -116,8 +312,7 @@
           });
       };
 
-      let join_user = " JOIN PackageBaseUserRoles pbur ON pb.id = pbur.base \
-              JOIN Users u ON pbur.user = u.id WHERE ";
+      let join_user = " JOIN PackageBaseUserRoles pbur ON pb.id = pbur.base JOIN Users u ON pbur.user = u.id WHERE ";
 
       match data.mode {
           Mode::Url => push_search("WHERE", "p.url"),
@@ -1322,7 +1517,7 @@ CREATE TABLE PackageRelations (
 
 == Опис програмної реалізації //{{{2
 
-При запуску комп'ютерної програми стартовим екраном є сторінка логіну @repo_login. Користувачі з існуючими обліковими записами можуть увійти у свій обліковий запис за допомогою пошти або юзернейма та свого паролю який надійно та безпечно зберігається в базі даних у зашифрованому вигляді.
+При запуску комп'ютерної програми стартовим екраном є сторінка логіну @repo_login. Користувачі з існуючими обліковими записами можуть увійти у свій обліковий запис за допомогою пошти або юзернейма та свого паролю який надійно та безпечно зберігається у зашифрованому вигляді в базі даних.
 
 #img("img/repo/login.png", "Сторінка логіну")
 
@@ -1334,9 +1529,9 @@ CREATE TABLE PackageRelations (
 
 Після успішного логіну або реєстрації програма перейде на сторінку пошуку @repo_search, яка надає можливість шукати пакунки з багатьма способами фільтрування та сортування результатів. При наведені курсору миші на елементи пошуку можна побачити стисле пояснення їх функціоналу.
 
-Назва пакунку, його бази та його веб-покликання на ресурс є інтерактивними. Якщо натиснути на назву пакунку, то відкриється вікно з переглядом інформації та статистики про пакунок. Якщо натиснути на назву бази пакунку, то відкриється вікно де буде інформація про базу пакунку. При натисканні на веб-покликання, воно відкриється в веб-браузері, котрий стоїть за замовчуванням в операційній системі користувача.
-
 #img("img/repo/search.png", "Сторінка пошуку")
+
+Назва пакунку, його бази та його веб-покликання на ресурс є інтерактивними. Якщо натиснути на назву пакунку, то відкриється вікно з переглядом інформації та статистики про пакунок (код формування відповідного запиту наведено в лістингу #link(<code_sql_package>)[А.1]). Якщо натиснути на назву бази пакунку, то відкриється вікно де буде інформація про базу пакунку (код формування відповідного запиту наведено в лістингу #link(<code_sql_base>)[А.2]). При натисканні на веб-покликання, воно відкриється в веб-браузері, котрий стоїть за замовчуванням в операційній системі користувача.
 
 Розглянемо на прикладі сторінки пошуку обробку запиту на основі даних котрі ввів користувач у графічний інтерфейс.
 
@@ -1393,7 +1588,7 @@ async fn search(&self, data: Data) -> Result<Vec<Entry>> {
 }
 ```
 
-У шарі взаємодії з базою даних функція пошуку, на основі отриманих даних, будує комплексний динамічний запит та надсилає його використовуючи отримане з репозиторію пошуку підключення до сховища даних (код формування відповідного запиту наведено в лістингу #link(<code_database_search>)[А.1]).
+У шарі взаємодії з базою даних функція пошуку, на основі отриманих даних, будує комплексний динамічний запит та надсилає його використовуючи отримане з репозиторію пошуку підключення до сховища даних (код формування відповідного запиту наведено в лістингу #link(<code_database_search>)[Б.1]).
 
 Якщо виконати пошук пакунку за частковою назвою пакунку "core", відсортований в низхідному порядку за датою останнього оновлення, з лімітом у 75 результатів, то до бази даних буде побудований і відправлений наступний запит:
 ```
@@ -1419,12 +1614,9 @@ SELECT
 FROM
   Packages p
   JOIN PackageBases pb ON p.base = pb.id
-WHERE
-  p.name LIKE ?
-ORDER BY
-  p.updated_at DESC
-LIMIT
-  75;
+WHERE p.name LIKE ?
+ORDER BY p.updated_at DESC
+LIMIT 75;
 ```
 
 Якщо виконати пошук пакунку за повним юзернеймом користувача "alice", відсортований у висхідному порядку за часом створення, з лімітом у 25 результатів, то до бази даних буде побудований і відправлений наступний запит:```
@@ -1475,11 +1667,11 @@ Message::RequestResult(r) => match &*r {
 },
 ```
 
-Після отриманого результату пошуку, він буде відображений у вигляді таблиці (код формування таблиці наведено в лістингу #link(<code_search_table>)[А.2]).
+Після отриманого результату пошуку, він буде відображений у вигляді таблиці (код формування таблиці наведено в лістингу #link(<code_search_table>)[Б.2]).
 
 Подібну реалізацію мають всі частини програми. Представлений програмний код демонструє ефективну реалізацію принципів гексагональної архітектури @hexagonal. Структура коду чітко відображає розділення на рівні, кожен з яких відповідає за визначену функціональну роль, що є ключовою характеристикою даної архітектурної парадигми. Цей підхід надає чітке розмежування відповідальності де кожен компонент системи, від інтерфейсу користувача до адаптерів баз даних, має чітко визначений набір обов'язків. Це полегшує процес розробки та спрощує підтримку програмного забезпечення у довгостроковій перспективі. Незалежність бізнес-логіки від інфраструктурних рішень дозволяє спростити процес міграції до простого доповнення арсеналу адаптерів. Сервісний шар, що містить основну бізнес-логіку пошуку, не залежить від конкретних технологій зберігання даних або реалізації графічного інтерфейсу, тому його можна буде використати в інших проектах. Крім того, модульна архітектура дозволяє проводити ізольоване тестування кожного компонента, за допомогою використання макетів (mock objects) для залежностей що забезпечить глибоке покриття коду тестами.
 
-Комп'ютерна програма імплементує отримання наступних статистик (SQL запити цих статистик наведено в #link(<code_sql_statistics>)[додатку Б]):
+Комп'ютерна програма імплементує отримання наступних статистик (SQL запити цих статистик наведено в #link(<code_sql_statistics>)[додатку В]):
 + статистика облікових записів:
   + загальна кількість користувачів;
   + кількість активних користувачів;
