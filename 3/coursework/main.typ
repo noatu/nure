@@ -260,15 +260,9 @@
       sb.name AS package_base_name,
       sb.description AS package_base_description,
       -- extract user roles
-      MAX(
-        CASE WHEN ur.role = 1 THEN ur.users END
-      ) AS submitters,
-      MAX(
-        CASE WHEN ur.role = 3 THEN ur.users END
-      ) AS maintainers,
-      MAX(
-        CASE WHEN ur.role = 2 THEN ur.users END
-      ) AS packagers,
+      MAX(CASE WHEN ur.role = 1 THEN ur.users END) AS submitters,
+      MAX(CASE WHEN ur.role = 3 THEN ur.users END) AS maintainers,
+      MAX(CASE WHEN ur.role = 2 THEN ur.users END) AS packagers,
 
       -- extract packages
       MAX(pi.packages) AS packages
@@ -501,35 +495,30 @@
         COUNT(*)
       FROM
         role_counts
-      WHERE
-        maintainer_count > 0
+      WHERE maintainer_count > 0
     ) AS maintainers_count,
     (
       SELECT
         COUNT(*)
       FROM
         role_counts
-      WHERE
-        submitter_count > 0
+      WHERE submitter_count > 0
     ) AS submitters_count,
     (
       SELECT
         COUNT(*)
       FROM
         role_counts
-      WHERE
-        packager_count > 0
+      WHERE packager_count > 0
     ) AS packagers_count,
     (
       SELECT
         COUNT(*)
       FROM
         role_counts
-      WHERE
-        flagger_count > 0
+      WHERE flagger_count > 0
     ) AS flaggers_count
-  FROM
-    user_stats us;
+  FROM user_stats us;
   ```
 
   == Статистика пакунків //{{{2
@@ -1556,18 +1545,14 @@ let search_data = Data {
 self.state = State::Searching;
 let arc = self.service.clone();
 
-return Some(
-    Task::perform(
-        async move {
-            let Some(service) = arc.try_lock() else {
-                return Err("other search request is being performed".into());
-            };
-            service.search(search_data).await
-        },
-        |r| Message::RequestResult(Arc::new(r)),
-    )
-        .into(),
-);
+return Some(Task::perform(async move {
+    let Some(service) = arc.try_lock() else {
+        return Err("other search request is being performed".into());
+    };
+    service.search(search_data).await
+},
+|r| Message::RequestResult(Arc::new(r)),
+).into());
 ```
 
 У шарі сервісу функція пошуку насилає дані до репозиторію пошуку:
@@ -1614,9 +1599,12 @@ SELECT
 FROM
   Packages p
   JOIN PackageBases pb ON p.base = pb.id
-WHERE p.name LIKE ?
-ORDER BY p.updated_at DESC
-LIMIT 75;
+WHERE
+  p.name LIKE ?
+ORDER BY
+  p.updated_at DESC
+LIMIT
+  75;
 ```
 
 Якщо виконати пошук пакунку за повним юзернеймом користувача "alice", відсортований у висхідному порядку за часом створення, з лімітом у 25 результатів, то до бази даних буде побудований і відправлений наступний запит:```
