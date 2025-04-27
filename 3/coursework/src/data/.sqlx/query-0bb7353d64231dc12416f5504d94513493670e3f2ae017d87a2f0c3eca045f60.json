@@ -1,0 +1,84 @@
+{
+  "db_name": "MySQL",
+  "query": "SELECT * FROM Users WHERE email = ?",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": {
+          "type": "Long",
+          "flags": "NOT_NULL | PRIMARY_KEY | UNSIGNED | AUTO_INCREMENT",
+          "max_size": 10
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": {
+          "type": "VarString",
+          "flags": "NOT_NULL | UNIQUE_KEY | NO_DEFAULT_VALUE",
+          "max_size": 124
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "email",
+        "type_info": {
+          "type": "VarString",
+          "flags": "NOT_NULL | UNIQUE_KEY | NO_DEFAULT_VALUE",
+          "max_size": 1020
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "password",
+        "type_info": {
+          "type": "VarString",
+          "flags": "NOT_NULL | NO_DEFAULT_VALUE",
+          "max_size": 1020
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "last_used",
+        "type_info": {
+          "type": "Timestamp",
+          "flags": "BINARY",
+          "max_size": 19
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "created_at",
+        "type_info": {
+          "type": "Timestamp",
+          "flags": "NOT_NULL | BINARY | TIMESTAMP",
+          "max_size": 19
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "updated_at",
+        "type_info": {
+          "type": "Timestamp",
+          "flags": "NOT_NULL | BINARY | TIMESTAMP",
+          "max_size": 19
+        }
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "0bb7353d64231dc12416f5504d94513493670e3f2ae017d87a2f0c3eca045f60"
+}

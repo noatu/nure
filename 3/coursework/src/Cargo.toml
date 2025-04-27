@@ -1,0 +1,16 @@
+[package]
+name = "repo"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+data = { path = "data" }
+service = { path = "service" }
+
+iced = { version = "0.13.1", features = ["tokio", "lazy"] }
+strum = { version = "0.27.0", features = ["derive"] }
+open = "5.3.2"
+
+[workspace]
+resolver = "2"
+members = ["data", "service"]
