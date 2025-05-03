@@ -1,0 +1,11 @@
+services:
+  database:
+    image: mysql:9.0
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3306:3306"
+    volumes:
+      - ../../repo-database:/var/lib/mysql
+      - ./init:/docker-entrypoint-initdb.d/:ro
+    environment:
+      MYSQL_ROOT_PASSWORD: password # yes, I know

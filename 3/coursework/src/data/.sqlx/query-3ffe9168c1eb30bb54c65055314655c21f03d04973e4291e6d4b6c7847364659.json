@@ -1,0 +1,12 @@
+{
+  "db_name": "MySQL",
+  "query": "INSERT INTO Packages (base, name, version, description, url, flagged_at, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 8
+    },
+    "nullable": []
+  },
+  "hash": "3ffe9168c1eb30bb54c65055314655c21f03d04973e4291e6d4b6c7847364659"
+}
