@@ -1,3 +1,5 @@
+USE repository;
+
 -- Insert Users
 INSERT INTO Users (name, email, password, last_used) VALUES
 ('alice', 'alice@example.com', 'password123', NOW()),
@@ -14,7 +16,9 @@ INSERT INTO Users (name, email, password, last_used) VALUES
 ('oscar', 'oscar@example.com', 'oscarpass', NOW()),
 ('peggy', 'peggy@example.com', 'peggypwd', NOW()),
 ('trent', 'trent@example.com', 'trentpass', NOW()),
-('victor', 'victor@example.com', 'victorpwd', NOW());
+('victor', 'victor@example.com', 'victorpwd', NOW()),
+('test', 'test@example.com', '$argon2id$v=19$m=19456,t=2,p=1$4POPE1A9A3evhePMYON7FQ$78A3OImH975IwugMikARwoEHkPixKJxJwPXgsCnQdY0', NOW());
+
 
 -- Insert PackageBases
 INSERT INTO PackageBases (name, description) VALUES

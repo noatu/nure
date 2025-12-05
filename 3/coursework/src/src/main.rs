@@ -58,13 +58,10 @@ impl Repository {
         let (main_id, open_task) = window::open(window::Settings::default());
         // let (main_window, main_window_task) = MainWindow::new();
 
-        let pool = MySqlPool::new(
-            SqlxPool::connect_lazy(
-                &std::env::var("DATABASE_URL")
-                    .expect("environment variable `DATABASE_URL` should be set"),
-            )
-            .unwrap(),
-        );
+        let db_url = std::env::var("DATABASE_URL")
+            .unwrap_or_else(|_| "mysql://root:password@localhost:3306/repository".into());
+
+        let pool = MySqlPool::new(SqlxPool::connect_lazy(&db_url).unwrap());
 
         let auth_service = Arc::new(Mutex::new(AuthenticationService::new(
             AuthenticationAdapter::new(pool.clone()),

@@ -35,6 +35,7 @@ npm run dev
 - OpenAPI spec is at <http://localhost:3000/apidoc/openapi.json>
 
 ## Showcase
+
 ### Swagger UI
 ![Image of Swagger UI](img/swagger.png)
 

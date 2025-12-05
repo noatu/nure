@@ -1,4 +1,45 @@
-# Stuff that helped
+# Information System "Package Repository"
+
+## Setup
+
+```bash
+# Setup the database
+docker compose up -d
+
+# Get environment variables (optional)
+source .envrc
+
+# Compile and execute
+cargo run
+```
+
+## Usage
+
+A user `test` with the password `testtest` is available (or you can register your own).
+
+To search all packages enter a `%` in the search bar. Try searching `lib` for example.
+
+When no input field is focused, the app supports UI scaling with `Ctrl-` and `Ctrl+`.
+
+## Cleanup
+
+```bash
+docker compose down -v
+cargo clean
+```
+
+## Showcase
+
+### Login page
+![Login page of the application](../img/repo/login.png)
+
+### Register page
+![Register page of the application](../img/repo/register.png)
+
+### Search page
+![Search page of the application](../img/repo/search.png)
+
+## Stuff that helped
 
 * Architecture:
     - [How to apply hexagonal architecture to Rust](https://www.barrage.net/blog/technology/how-to-apply-hexagonal-architecture-to-rust)
